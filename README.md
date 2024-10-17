@@ -1,3 +1,7 @@
+
+
+
+
 # Práctico Integrador Laboratorio 2
 Funcionamiento:
 Agenda de horarios consultándotelos disponibilidad del doctor y especialidad solicitada 

@@ -1,7 +1,13 @@
 extends layout
 
 block content
-  h2 Bienvenido a la Agenda Médica
-  p Aquí podrás gestionar tus citas médicas de manera fácil y eficiente.
-  a(href="/agenda") Ver Agenda
-  a(href="/paciente/nuevo") Registrar Paciente
+  h1 Iniciar Sesión
+  form(action="/login", method="POST")
+    div
+      label(for="username") Nombre de Usuario:
+      input(type="text", name="username", required)
+    div
+      label(for="password") Contraseña:
+      input(type="password", name="password", required)
+    div
+      button(type="submit") Iniciar Sesión
