@@ -2,16 +2,21 @@ extends layout
 
 block content
   h1 Iniciar Sesión
+  
   if error
     div.alert.alert-danger
       | #{error} 
+
   form(action="/login", method="POST")
     div
       label(for="username") Usuario:
       input(type="text", name="username", required)
+      
     div
       label(for="password") Contraseña:
       input(type="password", name="password", required)
-    div
-      button(type="submit", class="btn") Iniciar Sesión
 
+    // Contenedor para los botones
+    div.button-container
+      button(type="submit", class="btn") Iniciar Sesión
+      a(href="/register", class="btn-register") Registrarse

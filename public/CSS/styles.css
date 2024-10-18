@@ -16,11 +16,11 @@ header {
 main {
   padding: 2rem;
   text-align: center;
-  max-width: 300px;
-  margin: 2rem auto;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin : 7rem auto; /* Aumenta el espaciado superior para separar del header */
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 footer {
@@ -30,20 +30,24 @@ footer {
   padding: 1rem;
   position: fixed;
   bottom: 0;
+  width: 100%;
 }
 
-a {
+a,
+.btn {
   display: inline-block;
-  background-color: #4CAF50;
+  background-color: #3498db;
   color: white;
   padding: 0.5rem 1rem;
   text-decoration: none;
-  margin-right: 1rem;
   border-radius: 5px;
+  transition: background-color 0.2s ease;
+  margin: 0.5rem;
 }
 
+.btn:hover,
 a:hover {
-  background-color: #45a049;
+  background-color: #2980b9;
 }
 
 .alert {
@@ -54,18 +58,8 @@ a:hover {
   margin-bottom: 1rem;
 }
 
-.btn {
-  display: inline-block;
-  background-color: #3498db;
-  color: white;
-  padding: 0.5rem 1rem;
-  text-decoration: none;
-  margin-right: 1rem;
-  border-radius: 5px;
-  transition: background-color 0.2s ease;
+.button-container {
+  display: flex;
+  justify-content: center;
   margin-top: 1rem;
 }
-.btn:hover {
-  background-color: #2980b9;
-}
-
