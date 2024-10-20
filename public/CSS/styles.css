@@ -130,17 +130,6 @@ textarea {
   justify-content: center;
   margin-top: 2rem;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
-@media (max-width: 768px) {
-  main {
-    max-width: 90%;
-    padding: 2rem;
-    margin: 5rem auto;
-  }
-  
-  a,
-  .btn {
-    padding: 0.5rem 1rem;
-  }
-}

@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  h1 Lista de Pacientes
+  table
+    thead
+      tr
+        th Nombre
+        th Apellido
+        th DNI
+        th Obra Social
+        th Acciones
+    tbody
+      each paciente in pacientes
+        tr
+          td= paciente.nombre
+          td= paciente.apellido
+          td= paciente.dni
+          td= paciente.obra_social_nombre
+          td
+            a(href=`/paciente/editar/${paciente.id}`, class='btn') Editar

@@ -1,30 +1,28 @@
 extends layout
 
 block content
- h2 Agregar Paciente
- h3     
- 
+  h2 Agregar Paciente
   form(action="/paciente/agregar", method="POST")
     div
       label(for="nombre") Nombre:
-      input(type="text", name="nombre", required, placeholder="Ingrese el nombre del paciente")
+      input(type="text", name="nombre", required, placeholder="Ingrese el nombre del paciente", aria-label="Nombre del paciente")
     div
       label(for="apellido") Apellido:
-      input(type="text", name="apellido", required, placeholder="Ingrese el apellido del paciente")
+      input(type="text", name="apellido", required, placeholder="Ingrese el apellido del paciente", aria-label="Apellido del paciente")
     div
       label(for="dni") DNI:
-      input(type="text", name="dni", required, placeholder="Ingrese el DNI del paciente")
+      input(type="text", name="dni", required, placeholder="Ingrese el DNI del paciente", aria-label="DNI del paciente")
     div
-      label(for="obra_social") Obra Social:
-      select(name="obra_social", required)
+      label(for="obra_social_id") Obra Social:
+      select(name="obra_social_id", required, aria-label="Seleccione obra social")
         option(value="") Seleccione una opción
-        option(value="OSDE") OSDE
-        option(value="Swiss Medical") Swiss Medical
-        option(value="PAMI") PAMI
-        option(value="Otros") Otros
+        option(value="1") OSDE  
+        option(value="2") Swiss Medical 
+        option(value="3") PAMI  
+        option(value="4") Otros  
     div
       label(for="datos_contacto") Datos de Contacto:
-      textarea(name="datos_contacto", required, placeholder="Ingrese los datos de contacto del paciente")
+      textarea(name="datos_contacto", required, placeholder="Ingrese los datos de contacto del paciente", aria-label="Datos de contacto del paciente")
     div
       button(type="submit") Agregar Paciente
   a(href="/inicio") Volver al inicio

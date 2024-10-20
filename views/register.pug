@@ -1,27 +1,68 @@
 extends layout
 
 block content
-  h1 Registrarse 
-  
+  h1 Registrarse
   if error
     div.alert.alert-danger
       | #{error}
-
   form(action="/register", method="POST")
     div
       label(for="username") Usuario:
       input(type="text", name="username", required, placeholder="Crea un nombre de usuario")
-
     div
       label(for="password") Contraseña:
       input(type="password", name="password", required, placeholder="Crea una contraseña segura")
-
     div
       label(for="tipo") Tipo de usuario:
-      select(name="tipo", required)
+      select(name="tipo", required, id="tipoUsuario")
         option(value="paciente") Paciente
         option(value="profesional") Profesional
-
+    
+    // Campos adicionales para profesionales (inicialmente ocultos)
+    div#camposProfesional(style="display: none;")
+      div
+        label(for="matricula") Matrícula:
+        input(type="text", name="matricula", placeholder="Ingrese su número de matrícula")
+      div
+        label(for="especialidad") Especialidad:
+        select(name="especialidad_id", required, id="especialidad")
+          option(value="") Seleccione una especialidad
+          option(value="22") Alergología
+          option(value="19") Anestesiología
+          option(value="1") Cardiología
+          option(value="15") Cirugía general
+          option(value="23") Cirugía plástica
+          option(value="2") Dermatología
+          option(value="12") Endocrinología
+          option(value="13") Gastroenterología
+          option(value="3") Ginecología
+          option(value="24") Infectología
+          option(value="20") Medicina familiar
+          option(value="16") Medicina interna
+          option(value="18") Nefrología
+          option(value="11") Neumología
+          option(value="9") Neurología
+          option(value="5") Oftalmología
+          option(value="8") Oncología
+          option(value="6") Ortopedia
+          option(value="17") Otorrinolaringología
+          option(value="4") Pediatría
+          option(value="7") Psiquiatría
+          option(value="25") Radiología
+          option(value="14") Reumatología
+          option(value="21") Traumatología
+          option(value="10") Urología
+          
     div.button-container
       button(type="submit", class="btn") Registrarse
       a(href="/login", class="btn") Ya tengo una cuenta
+
+  script.
+    document.getElementById('tipoUsuario').addEventListener('change', function() {
+      var camposProfesional = document.getElementById('camposProfesional');
+      if (this.value === 'profesional') {
+        camposProfesional.style.display = 'block';
+      } else {
+        camposProfesional.style.display = 'none';
+      }
+    });
