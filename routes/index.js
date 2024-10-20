@@ -97,18 +97,17 @@ router.get('/usuarios/editar/:id', (req, res) => {
 
   db.query('SELECT * FROM usuarios WHERE id = ?', [id], (err, results) => {
     if (err || results.length === 0) {
-      return res.status(404).send('Usuario no encontrado');
+      return res.status(404).render('404', { title: 'Usuario no encontrado' });
     }
     res.render('editarUsuario', { title: 'Editar Usuario', usuario: results[0] });
   });
 });
-
 // Ruta POST para actualizar el usuario
 router.post('/usuarios/editar/:id', (req, res) => {
   const { id } = req.params;
   const { username, password, tipo } = req.body;
 
-  db.query('UPDATE usuarios SET username = ?, password = ?, tipo = ? WHERE id = ?', [username, password, tipo, id], (err) => {
+  db.query('UPDATE usuarios SET username = ?, password = ?, tipo = ? WHERE id = ?', [username, password, tipo, id], (err, result) => {
     if (err) {
       return res.status(500).send('Error al actualizar el usuario');
     }

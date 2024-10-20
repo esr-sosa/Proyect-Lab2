@@ -1,5 +1,30 @@
 extends layout
 
 block content
- h1 Pacientes
-    a(href="/inicio") Volver al inicio
+ h2 Agregar Paciente
+ h3     
+ 
+  form(action="/paciente/agregar", method="POST")
+    div
+      label(for="nombre") Nombre:
+      input(type="text", name="nombre", required, placeholder="Ingrese el nombre del paciente")
+    div
+      label(for="apellido") Apellido:
+      input(type="text", name="apellido", required, placeholder="Ingrese el apellido del paciente")
+    div
+      label(for="dni") DNI:
+      input(type="text", name="dni", required, placeholder="Ingrese el DNI del paciente")
+    div
+      label(for="obra_social") Obra Social:
+      select(name="obra_social", required)
+        option(value="") Seleccione una opción
+        option(value="OSDE") OSDE
+        option(value="Swiss Medical") Swiss Medical
+        option(value="PAMI") PAMI
+        option(value="Otros") Otros
+    div
+      label(for="datos_contacto") Datos de Contacto:
+      textarea(name="datos_contacto", required, placeholder="Ingrese los datos de contacto del paciente")
+    div
+      button(type="submit") Agregar Paciente
+  a(href="/inicio") Volver al inicio
