@@ -5,18 +5,17 @@ block content
   
   if error
     div.alert.alert-danger
-      | #{error} 
+      | #{error}
 
   form(action="/login", method="POST")
     div
       label(for="username") Usuario:
-      input(type="text", name="username", required)
-      
+      input(type="text", name="username", required, placeholder="Ingresa tu usuario")
+
     div
       label(for="password") Contraseña:
-      input(type="password", name="password", required)
+      input(type="password", name="password", required, placeholder="Ingresa tu contraseña")
 
-    // Contenedor para los botones
     div.button-container
       button(type="submit", class="btn") Iniciar Sesión
-      a(href="/register", class="btn-register") Registrarse
+      a(href="/register", class="btn-secondary") Registrarse

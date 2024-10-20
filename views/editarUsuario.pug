@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  h1 Editar Usuario
+  form(action=`/usuarios/editar/${usuario.id}`, method='POST')
+    div
+      label(for='username') Username:
+      input(type='text', name='username', value=usuario.username, required)
+    div
+      label(for='password') Contraseña:
+      input(type='password', name='password', value=usuario.password, required)
+    div
+      label(for='tipo') Tipo:
+      select(name='tipo', required)
+        option(value='admin', selected=usuario.tipo === 'admin') Admin
+        option(value='user', selected=usuario.tipo === 'user') Usuario
+    div
+      button(type='submit') Actualizar
+  a(href='/usuarios') Volver a la lista de usuarios

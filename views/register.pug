@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  h1 Registrar
+  h1 Registrarse 
   
   if error
     div.alert.alert-danger
@@ -10,11 +10,11 @@ block content
   form(action="/register", method="POST")
     div
       label(for="username") Usuario:
-      input(type="text", name="username", required)
+      input(type="text", name="username", required, placeholder="Crea un nombre de usuario")
 
     div
       label(for="password") Contraseña:
-      input(type="password", name="password", required)
+      input(type="password", name="password", required, placeholder="Crea una contraseña segura")
 
     div
       label(for="tipo") Tipo de usuario:
@@ -22,8 +22,6 @@ block content
         option(value="paciente") Paciente
         option(value="profesional") Profesional
 
-    div
+    div.button-container
       button(type="submit", class="btn") Registrarse
-
-    div
-      a(href="/login", class="btn-login") Ya tengo una cuenta
+      a(href="/login", class="btn") Ya tengo una cuenta
