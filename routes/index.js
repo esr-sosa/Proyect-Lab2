@@ -18,7 +18,7 @@ router.get('/login', (req, res) => {
 router.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  db.query('SELECT * FROM usuarios WHERE username = ?', [username], (err, results) => {
+  db.query('SELECT * FROM personal WHERE mail = ?', [username], (err, results) => {
     if (err) {
       return res.render('index', { title: 'Login', error: 'Error en la base de datos' });
     }
