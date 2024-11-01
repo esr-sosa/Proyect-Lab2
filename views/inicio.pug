@@ -1,18 +1,9 @@
 extends layout
 
 block content
-  h1 ¡Bienvenido, #{user.username}!
+  h1 ¡Bienvenido, #{user.username}! 
   div.button-container
-    if user.tipo === 'profesional'
-      a(href="/profesionales", class="btn") Listar Profesionales
-      a(href="/usuarios", class="btn") Listar Usuarios
-      a(href="/pacientes", class="btn") Listar Pacientes
-      a(href="/agenda", class="btn") Agenda
-      a(href="/paciente", class="btn") Agregar Paciente
-      a(href="/turnos", class="btn") Agregar Turno
-      a(href="/logout", class="btn") Cerrar Sesión
-      div.button-container
-    if user.tipo === 'paciente'
-      a(href="/turnos", class="btn") Agregar Turno
-      a(href="/logout", class="btn") Cerrar Sesión
-
+    a(href="/usuarios", class="btn") Editar Usuarios
+    a(href="/agenda", class="btn") Agenda
+    a(href="/paciente", class="btn") Agregar Paciente
+    a(href="/logout", class="btn") Cerrar Sesión
