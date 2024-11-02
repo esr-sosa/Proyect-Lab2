@@ -1,9 +1,13 @@
 extends layout
 
 block content
-  h1 ¡Bienvenido, #{user.username}! 
-  div.button-container
-    a(href="/usuarios", class="btn") Editar Usuarios
+  h1 ¡Bienvenido, #{user.username}!
+    div.button-container
+    a(href="/profesionales", class="btn") Listar Profesionales
+    a(href="/usuarios", class="btn") Listar Usuarios
+    a(href="/pacientes", class="btn") Listar Pacientes
     a(href="/agenda", class="btn") Agenda
     a(href="/paciente", class="btn") Agregar Paciente
-    a(href="/logout", class="btn") Cerrar Sesión
+    a(href="/turnos", class="btn") Agregar Turno
+  a(href="/logout", class="btn") Cerrar Sesión
+
