@@ -14,11 +14,12 @@ app.use(express.json());
 const indexRouter = require('./routes/index');
 const agendaRouter = require('./routes/agenda');
 const pacienteRouter = require('./routes/paciente');
+const medicosRouter = require('./routes/medicos');
 
 app.use('/', indexRouter);
 app.use('/agenda', agendaRouter);
 app.use('/paciente', pacienteRouter);
-
+app.use('/medicos', medicosRouter);
 app.use((req, res, next) => {
   res.status(404).render('404', { title: 'Página no encontrada' });
 });
