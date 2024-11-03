@@ -2,45 +2,6 @@ extends layout
 
 block content
   h1 Agenda de Turnos
-  link(href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css", rel="stylesheet")
-  
-  #calendar
-  
-  script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js")
-  script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js")
-  script(src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js")
-
-  script.
-    $(document).ready(function() {
-      $('#calendar').fullCalendar({
-        header: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'month,agendaWeek,agendaDay'
-        },
-        events: '/turnos',
-        selectable: true,
-        selectHelper: true,
-        select: function(start, end) {
-          var title = prompt('Ingrese el título del turno:');
-          if (title) {
-            var startFormatted = start.format();
-            var endFormatted = end.format();
-            $.ajax({
-              url: '/turnos/agregar',
-              method: 'POST',
-              data: {
-                title: title,
-                start: startFormatted,
-                end: endFormatted
-              },
-              success: function() {
-                $('#calendar').fullCalendar('refetchEvents');
-                alert('Turno registrado con éxito');
-              }
-            });
-          }
-          $('#calendar').fullCalendar('unselect');
-        }
-      });
-    });
+    <div class="button-container">
+      <a href="/" class="btn btn-secondary">Volver al inicio</a>
+    </div>

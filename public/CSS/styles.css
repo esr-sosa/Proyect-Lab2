@@ -4,6 +4,53 @@
   padding: 0;
 }
 
+.logo {
+  font-family: Georgia, serif;
+  font-size: 1em;
+  color: #000000;
+  text-decoration: none;  
+}
+
+
+header {
+  display: flex;
+  justify-content: space-between; /* Espacia h1 y div.cerrar */
+  align-items: center; /* Alinea verticalmente los elementos */
+  background-color: rgba(238, 238, 238, 0.22);
+  padding: 1.5rem;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+h1 {
+  font-size: 1.5em; /* Tamaño de fuente para h1 */
+  margin: 0; /* Sin margen superior */
+  text-align: left; /* Alineación a la izquierda */
+}
+
+.cerrar {
+  text-align: right; /* Alineación a la derecha */
+  display: flex; /* Usamos flexbox para alinear h4 y btn-cerrar */
+  align-items: center; /* Alinea verticalmente */
+}
+
+h4 {
+  display: inline-block;
+  font-size: 1em; /* Tamaño de fuente para h4 */
+  margin: 0; /* Sin margen */
+}
+
+.btn-cerrar {
+  display: inline-block;
+  font-size: 0.8em; 
+  margin-left: 10px; /* Espacio entre h4 y el botón */
+}
+
+
+
 body {
   font-family: 'Arial', sans-serif;
   line-height: 1.6;
@@ -20,16 +67,6 @@ body {
   overflow-x: hidden;
 }
 
-header {
-  background-color: rgba(238, 238, 238, 0.22);
-  text-align: center;
-  padding: 1.5rem;
-  backdrop-filter: blur(5px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
 
 main {
   padding: 3rem;
@@ -77,6 +114,9 @@ a:hover {
 
 .btn-secondary {
   background-color: #2ecc71;
+}
+.btn-cerrar:hover {
+  background-color: #e74c3c;
 }
 
 .btn-secondary:hover {

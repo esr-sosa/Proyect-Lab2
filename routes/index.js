@@ -71,11 +71,11 @@ router.get('/usuarios', (req, res) => {
     return res.redirect('/login'); // Redirige al login si no hay sesión
   }
 
-  db.query('SELECT * FROM usuarios', (err, results) => {
+  db.query('SELECT * FROM personal', (err, results) => {
     if (err) {
       return res.status(500).send('Error al obtener los usuarios');
     }
-    res.render('usuarios', { title: 'Lista de Usuarios', usuarios: results });
+    res.render('usuarios', { title: 'Lista de Usuarios', usuarios: results, user: req.session.user }); // Pasa el usuario
   });
 });
 
@@ -99,9 +99,10 @@ router.get('/usuarios/editar/:id', (req, res) => {
     if (err || results.length === 0) {
       return res.status(404).render('404', { title: 'Usuario no encontrado' });
     }
-    res.render('editarUsuario', { title: 'Editar Usuario', usuario: results[0] });
+    res.render('editarUsuario', { title: 'Editar Usuario', usuario: results[0], user: req.session.user }); // Pasa el usuario
   });
 });
+
 // Ruta POST para actualizar el usuario
 router.post('/usuarios/editar/:id', (req, res) => {
   const { id } = req.params;
@@ -125,14 +126,13 @@ router.get('/logout', (req, res) => {
   });
 });
 
-
+// Ruta para la página de inicio
 router.get('/inicio', (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login'); // Redirige al login si no hay sesión
   }
   res.render('inicio', { title: 'Inicio', user: req.session.user }); // Renderiza la vista de inicio
 });
-
 
 // Ruta para la página principal
 router.get('/', (req, res) => {
