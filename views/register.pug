@@ -7,7 +7,7 @@ block content
     div.alert.alert-danger
       | #{error}
 
-  form(action="/register", method="POST")
+  form(action="/register", method="POST", enctype="multipart/form-data")
     div
       label(for="nombre") Nombre:
       input(type="text", name="name", required, placeholder="Tu nombre")
@@ -35,7 +35,9 @@ block content
     div
       label(for="password") Contraseña:
       input(type="password", name="password", required, placeholder="Crea una contraseña segura")
+    div
+      label(for="fotoDni") Foto del DNI:
+      input(type="file", name="fotoDni", accept="image/*", required)  
     div.button-container
       button(type="submit", class="btn") Registrarse
       a(href="/login", class="btn") Ya tengo una cuenta
-
