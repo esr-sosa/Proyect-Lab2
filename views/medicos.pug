@@ -10,7 +10,7 @@ block content
     
     if success
       div.alert.alert-success
-        | #{success}
+        pre.success-message #{success}
     
     form(action="/medicos/agregar", method="POST")
       div.form-group

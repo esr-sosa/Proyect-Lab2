@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 06-11-2024 a las 23:01:52
+-- Tiempo de generación: 07-11-2024 a las 00:22:19
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -114,6 +114,15 @@ CREATE TABLE `medicos` (
   `estado` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `medicos`
+--
+
+INSERT INTO `medicos` (`medicoid`, `personaid`, `especialidadId`, `estado`) VALUES
+(1, 5, 6, 1),
+(2, 6, 6, 1),
+(3, 8, 7, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -125,6 +134,15 @@ CREATE TABLE `medico_esp` (
   `medicoid` int(20) NOT NULL,
   `especialidadid` int(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `medico_esp`
+--
+
+INSERT INTO `medico_esp` (`matricula`, `medicoid`, `especialidadid`) VALUES
+('123123', 1, 6),
+('123', 2, 6),
+('12312312', 3, 7);
 
 -- --------------------------------------------------------
 
@@ -164,16 +182,21 @@ CREATE TABLE `persona` (
   `localidad` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `telefono` varchar(20) NOT NULL,
   `mail` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `foto_dni` varchar(255) DEFAULT NULL
+  `foto_dni` varchar(255) DEFAULT NULL,
+  `foto_perfil` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `persona`
 --
 
-INSERT INTO `persona` (`personaid`, `userid`, `dni`, `nombre`, `apellido`, `direccion`, `localidad`, `telefono`, `mail`, `foto_dni`) VALUES
-(2, 3, 12344444, 'sosa', 'raul emanuel', '2', '0', '02665032890', 'importstore.sanluis@gmail.com', NULL),
-(3, 4, 123123, 'sosa', 'raul emanuel', '2', '0', '02665032890', '1111.sanluis@gmail.com', '/uploads/dni/1730924089375.png');
+INSERT INTO `persona` (`personaid`, `userid`, `dni`, `nombre`, `apellido`, `direccion`, `localidad`, `telefono`, `mail`, `foto_dni`, `foto_perfil`) VALUES
+(2, 3, 12344444, 'sosa', 'raul emanuel', '2', '0', '02665032890', 'importstore.sanluis@gmail.com', NULL, '1730934704964.jpg'),
+(3, 4, 123123, 'sosa', 'raul emanuel', '2', '0', '02665032890', '1111.sanluis@gmail.com', '/uploads/dni/1730924089375.png', NULL),
+(5, 5, 123123, 'facundo', 'sosa', '', '', '123123', 'prueba@gmail.com', NULL, NULL),
+(6, 6, 12312322, 'facundo', 'sosa', '', '', '123123', 'ba@gmail.com', NULL, NULL),
+(7, 7, 111, 'sosa', 'raul emanuel', '', '', '02665032890', '112sanluis@gmail.com', '1730933981589.png', NULL),
+(8, 8, 44234532, 'CANDELA', 'fleto ', '', '', '2665032890', 'raulemanuel1@gmail.com', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -238,8 +261,12 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`userid`, `idperfil`, `nombre_user`, `password`, `estado`) VALUES
-(3, 2, 'importstore.sanluis@gmail.com', '123', 1),
-(4, 4, '1111.sanluis@gmail.com', '123', 1);
+(3, 1, 'importstore.sanluis@gmail.com', '1234', 1),
+(4, 4, '1111.sanluis@gmail.com', '123', 1),
+(5, 2, 'prueba@gmail.com', '123456', 1),
+(6, 1, 'importstore.sanluis@gmail.com', '1234', 1),
+(7, 4, '112sanluis@gmail.com', '111', 1),
+(8, 2, 'raulemanuel1@gmail.com', '44234532', 1);
 
 --
 -- Índices para tablas volcadas
@@ -364,7 +391,7 @@ ALTER TABLE `estado`
 -- AUTO_INCREMENT de la tabla `medicos`
 --
 ALTER TABLE `medicos`
-  MODIFY `medicoid` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `medicoid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `perfil`
@@ -376,7 +403,7 @@ ALTER TABLE `perfil`
 -- AUTO_INCREMENT de la tabla `persona`
 --
 ALTER TABLE `persona`
-  MODIFY `personaid` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `personaid` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `sucursal`
@@ -400,7 +427,7 @@ ALTER TABLE `turno`
 -- AUTO_INCREMENT de la tabla `user`
 --
 ALTER TABLE `user`
-  MODIFY `userid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `userid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restricciones para tablas volcadas

@@ -55,8 +55,8 @@ router.post('/agregar', isAdmin, async (req, res) => {
 
     // 1. Crear el usuario con el DNI como contraseña
     const [userResult] = await db.promise().query(
-      'INSERT INTO user (nombre_user, password, idperfil) VALUES (?, ?, ?)',
-      [email, dni, 2] // Usando el DNI como contraseña inicial
+      'INSERT INTO user (nombre_user, password, idperfil, estado) VALUES (?, ?, ?, 1)',
+      [email, dni, 2, 1] // Agregamos estado = 1 para activo
     );
     
     const userId = userResult.insertId;
@@ -93,7 +93,7 @@ router.post('/agregar', isAdmin, async (req, res) => {
       title: 'Gestión de Profesionales',
       user: req.session.user,
       especialidades: especialidades,
-      success: 'Médico agregado exitosamente',
+      success: `Profesional agregado exitosamente.\nCredenciales de acceso:\nUsuario: ${email}\nContraseña: ${dni}`,
       error: null
     });
   } catch (error) {

@@ -32,8 +32,8 @@ router.post('/agregar', upload.single('foto_dni'), async (req, res) => {
 
     // 1. Crear usuario con el DNI como contraseña
     const [userResult] = await db.promise().query(
-      'INSERT INTO user (nombre_user, password, idperfil) VALUES (?, ?, ?)',
-      [email, dni, 4] // idperfil 4 corresponde a 'paciente'
+      'INSERT INTO user (nombre_user, password, idperfil, estado) VALUES (?, ?, ?, 1)',
+      [email, dni, 4, 1] // Agregamos estado = 1 para activo
     );
     
     const userId = userResult.insertId;
