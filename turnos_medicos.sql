@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 06-11-2024 a las 21:29:38
+-- Tiempo de generación: 06-11-2024 a las 23:01:52
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -63,6 +63,32 @@ CREATE TABLE `especialidad` (
   `nombre_esp` varchar(250) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `estado` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `especialidad`
+--
+
+INSERT INTO `especialidad` (`especialidadId`, `nombre_esp`, `estado`) VALUES
+(1, 'Clínica Médica', 1),
+(2, 'Pediatría', 1),
+(3, 'Cardiología', 1),
+(4, 'Dermatología', 1),
+(5, 'Traumatología', 1),
+(6, 'Ginecología', 1),
+(7, 'Oftalmología', 1),
+(8, 'Otorrinolaringología', 1),
+(9, 'Neurología', 1),
+(10, 'Psiquiatría', 1),
+(11, 'Urología', 1),
+(12, 'Endocrinología', 1),
+(13, 'Gastroenterología', 1),
+(14, 'Reumatología', 1),
+(15, 'Nefrología', 1),
+(16, 'Oncología', 1),
+(17, 'Hematología', 1),
+(18, 'Infectología', 1),
+(19, 'Neumonología', 1),
+(20, 'Medicina Familiar', 1);
 
 -- --------------------------------------------------------
 
@@ -212,7 +238,7 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`userid`, `idperfil`, `nombre_user`, `password`, `estado`) VALUES
-(3, 4, 'importstore.sanluis@gmail.com', '123', 1),
+(3, 2, 'importstore.sanluis@gmail.com', '123', 1),
 (4, 4, '1111.sanluis@gmail.com', '123', 1);
 
 --
@@ -326,7 +352,7 @@ ALTER TABLE `calendar`
 -- AUTO_INCREMENT de la tabla `especialidad`
 --
 ALTER TABLE `especialidad`
-  MODIFY `especialidadId` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `especialidadId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `estado`
