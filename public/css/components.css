@@ -201,3 +201,172 @@
   font-size: 0.875rem;
   color: #6b7280;
 }
+
+.main-footer {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1.5rem 0;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.footer-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.footer-brand {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.footer-copyright {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.welcome-banner {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  border-radius: var(--border-radius);
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-banner h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  background: linear-gradient(to right, #fff, #ecf0f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.welcome-banner p {
+  font-size: 1.1rem;
+  color: #ecf0f1;
+  opacity: 0.9;
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #ffffff;
+  border-radius: var(--border-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.user-info-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-info-header i {
+  font-size: 2rem;
+  color: var(--primary-color);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.user-name {
+  color: #1a1a1a;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.user-role {
+  color: #4b5563;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+/* Formulario de registro */
+.form-register {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.form-register h1 {
+  margin-bottom: 2rem;
+  color: var(--text-color);
+  text-align: center;
+  font-size: 1.75rem;
+}
+
+.form-register .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-register .form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.form-register .form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.form-register input[type="file"] {
+  padding: 0.5rem;
+  border: 2px dashed #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.form-register input[type="file"]:hover {
+  border-color: var(--primary-color);
+  background-color: #f3f4f6;
+}
+
+.form-register .button-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.form-register .btn {
+  min-width: 120px;
+  justify-content: center;
+}
+
+.alert {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+}
+
+.alert-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}

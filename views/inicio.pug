@@ -9,7 +9,7 @@ block content
         p.user-type #{user.tipo_perfil}
       
       nav.menu
-        if user.isAdmin || user.isSecretaria
+        if user.isAdmin
           div.menu-section
             h3 Gestión
             ul
@@ -25,6 +25,10 @@ block content
                 a(href="/pacientes")
                   i.fas.fa-hospital-user
                   span Pacientes
+              li
+                a(href="/agenda")
+                  i.fas.fa-calendar-alt
+                  span Agenda
             
             h3 Agregar
             ul
@@ -36,6 +40,26 @@ block content
                 a(href="/medicos")
                   i.fas.fa-user-md
                   span Nuevo Profesional
+
+        if user.isSecretaria
+          div.menu-section
+            h3 Gestión
+            ul
+              li
+                a(href="/pacientes")
+                  i.fas.fa-hospital-user
+                  span Pacientes
+              li
+                a(href="/agenda")
+                  i.fas.fa-calendar-alt
+                  span Agenda
+            
+            h3 Agregar
+            ul
+              li
+                a(href="/paciente")
+                  i.fas.fa-user-plus
+                  span Nuevo Paciente
 
         if user.isMedico
           div.menu-section
