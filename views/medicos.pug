@@ -1,0 +1,36 @@
+extends layout
+
+block content
+  div.card
+    h2.card-title Agregar Profesional
+    
+    form(action="/medicos/agregar", method="POST")
+      div.form-group
+        label.form-label(for="nombre") Nombre:
+        input.form-control(type="text", name="nombre", required, placeholder="Nombre del profesional")
+      div.form-group
+        label.form-label(for="apellido") Apellido:
+        input.form-control(type="text", name="apellido", required, placeholder="Apellido del profesional")
+      div.form-group
+        label.form-label(for="dni") DNI:
+        input.form-control(type="text", name="dni", required, placeholder="DNI del profesional")
+      div.form-group
+        label.form-label(for="especialidad") Especialidad:
+        select.form-control(name="especialidad", required)
+          option(value="") Seleccione una especialidad
+          option(value="Clinica") Clínica Médica
+          option(value="Pediatria") Pediatría
+          option(value="Cardiologia") Cardiología
+          option(value="Traumatologia") Traumatología
+      div.form-group
+        label.form-label(for="matricula") Matrícula:
+        input.form-control(type="text", name="matricula", required, placeholder="Número de matrícula")
+      div.form-group
+        label.form-label(for="email") Email:
+        input.form-control(type="email", name="email", required, placeholder="Email del profesional")
+      div.form-group
+        label.form-label(for="telefono") Teléfono:
+        input.form-control(type="text", name="telefono", required, placeholder="Teléfono del profesional")
+      div.form-group
+        button.btn-primary(type="submit") Agregar Profesional
+        a.btn-secondary(href="/inicio") Volver

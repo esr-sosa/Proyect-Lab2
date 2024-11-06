@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  div.card
+    h2.card-title Agregar Paciente
+    
+    form(action="/paciente/agregar", method="POST")
+      div.form-group
+        label.form-label(for="nombre") Nombre:
+        input.form-control(type="text", name="nombre", required, placeholder="Ingrese el nombre del paciente")
+      div.form-group
+        label.form-label(for="apellido") Apellido:
+        input.form-control(type="text", name="apellido", required, placeholder="Ingrese el apellido del paciente")
+      div.form-group
+        label.form-label(for="dni") DNI:
+        input.form-control(type="text", name="dni", required, placeholder="Ingrese el DNI del paciente")
+      div.form-group
+        label.form-label(for="obra_social") Obra Social:
+        select.form-control(name="obra_social", required)
+          option(value="") Seleccione una opción
+          option(value="OSDE") OSDE
+          option(value="Swiss Medical") Swiss Medical
+          option(value="PAMI") PAMI
+          option(value="Otros") Otros
+      div.form-group
+        label.form-label(for="datos_contacto") Datos de Contacto:
+        textarea.form-control(name="datos_contacto", required, placeholder="Ingrese los datos de contacto del paciente")
+      div.form-group
+        button.btn-primary(type="submit") Agregar Paciente
+        a.btn-secondary(href="/inicio") Volver

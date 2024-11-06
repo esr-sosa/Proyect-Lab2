@@ -11,7 +11,6 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-app.use('/uploads', express.static('uploads'));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -31,8 +30,14 @@ app.use((req, res, next) => {
 
 // Manejador de errores
 app.use((err, req, res, next) => {
+  // Configura el estado del error
   res.status(err.status || 500);
-  res.render('error', { title: 'Error', errorMessage: err.message });
+  
+  res.render('error', { 
+    title: err.status === 404 ? 'Página no encontrada' : 'Error',
+    message: err.status === 404 ? 'Lo sentimos, la página que buscas no existe.' : err.message,
+    error: req.app.get('env') === 'development' ? err : {}
+  });
 });
 
 module.exports = app;

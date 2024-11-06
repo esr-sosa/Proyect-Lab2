@@ -1,0 +1,40 @@
+extends layout
+
+block content
+  h1 Registro de Paciente
+  
+  if error
+    div.alert.alert-danger
+      | #{error}
+
+  form(action="/register", method="POST", enctype="multipart/form-data")
+    div
+      label(for="nombre") Nombre:
+      input(type="text", name="name", required, placeholder="Tu nombre")
+    div
+      label(for="apellido") Apellido:
+      input(type="text", name="lastname", required, placeholder="Tu apellido")
+    div
+      label(for="dni") DNI:
+      input(type="number", name="dni", required, placeholder="Tu DNI sin puntos")
+    div
+      label(for="foto_dni") Foto DNI:
+      input(type="file", name="foto_dni", accept="image/*", required)
+    div
+      label(for="telefono") Teléfono:
+      input(type="text", name="phone", required, placeholder="Tu número de teléfono")
+    div
+      label(for="mail") Email:
+      input(type="email", name="username", required, placeholder="Tu correo electrónico")
+    div
+      label(for="password") Contraseña:
+      input(type="password", name="password", required, placeholder="Crea una contraseña segura")
+    div
+      label(for="direccion") Dirección:
+      input(type="text", name="direccion", required, placeholder="Tu dirección")
+    div
+      label(for="localidad") Localidad:
+      input(type="text", name="localidad", required, placeholder="Tu localidad")
+    div.button-container
+      button(type="submit", class="btn") Registrarse
+      a(href="/login", class="btn") Ya tengo una cuenta

@@ -1,0 +1,34 @@
+extends layout
+
+block content
+  div.card
+    h1.card-title Lista de Usuarios
+    div.table-container
+      table.table
+        thead
+          tr
+            th ID
+            th Nombre
+            th Apellido
+            th Username
+            th Tipo
+            th Estado
+            th Acciones
+        tbody
+          each usuario in usuarios
+            tr
+              td= usuario.userid
+              td= usuario.nombre
+              td= usuario.apellido
+              td= usuario.nombre_user
+              td= usuario.tipo_perfil
+              td= usuario.estado ? 'Activo' : 'Inactivo'
+              td.actions
+                if user.isAdmin
+                  a.btn-secondary(href=`/usuarios/editar/${usuario.userid}`)
+                    i.fas.fa-edit
+                    span Editar
+
+  a(href="/inicio", class="btn") Volver al inicio
+
+             

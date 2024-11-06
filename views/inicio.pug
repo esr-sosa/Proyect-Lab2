@@ -1,0 +1,77 @@
+extends layout
+
+block content
+  div.dashboard-container
+    div.sidebar
+      div.user-info
+        i.fas.fa-user-circle
+        h2 #{user.nombre} #{user.apellido}
+        p.user-type #{user.tipo_perfil}
+      
+      nav.menu
+        if user.isAdmin || user.isSecretaria
+          div.menu-section
+            h3 Gestión
+            ul
+              li
+                a(href="/profesionales")
+                  i.fas.fa-user-md
+                  span Profesionales
+              li
+                a(href="/usuarios")
+                  i.fas.fa-users
+                  span Usuarios
+              li
+                a(href="/pacientes")
+                  i.fas.fa-hospital-user
+                  span Pacientes
+            
+            h3 Agregar
+            ul
+              li
+                a(href="/paciente")
+                  i.fas.fa-user-plus
+                  span Nuevo Paciente
+              li
+                a(href="/medicos")
+                  i.fas.fa-user-md
+                  span Nuevo Profesional
+
+        if user.isMedico
+          div.menu-section
+            h3 Mi Consultorio
+            ul
+              li
+                a(href="/agenda")
+                  i.fas.fa-calendar-alt
+                  span Mi Agenda
+              li
+                a(href="/mis-pacientes")
+                  i.fas.fa-users
+                  span Mis Pacientes
+        
+        if user.isPaciente
+          div.menu-section
+            h3 Mis Turnos
+            ul
+              li
+                a(href="/mis-turnos")
+                  i.fas.fa-calendar-check
+                  span Ver Turnos
+              li
+                a(href="/solicitar-turno")
+                  i.fas.fa-plus-circle
+                  span Solicitar Turno
+
+        div.menu-section.bottom
+          ul
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Cerrar Sesión
+
+    div.main-content
+      div.welcome-banner
+        h1 Bienvenido al Portal de Consultas Médicas
+        p Selecciona una opción del menú para comenzar
+

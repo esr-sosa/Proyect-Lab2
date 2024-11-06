@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 05-11-2024 a las 02:34:46
+-- Tiempo de generación: 06-11-2024 a las 21:29:38
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -112,6 +112,16 @@ CREATE TABLE `perfil` (
   `permisos` varchar(250) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `perfil`
+--
+
+INSERT INTO `perfil` (`perfilid`, `tipo`, `permisos`) VALUES
+(1, 'admin', 'all'),
+(2, 'medico', ''),
+(3, 'secretaria', ''),
+(4, 'paciente', 'turnos');
+
 -- --------------------------------------------------------
 
 --
@@ -124,11 +134,20 @@ CREATE TABLE `persona` (
   `dni` int(20) NOT NULL,
   `nombre` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `apellido` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `direccion` VARCHAR(100) NOT NULL,
+  `direccion` varchar(100) NOT NULL,
   `localidad` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `telefono` VARCHAR(20) NOT NULL,
-  `mail` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
+  `telefono` varchar(20) NOT NULL,
+  `mail` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `foto_dni` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `persona`
+--
+
+INSERT INTO `persona` (`personaid`, `userid`, `dni`, `nombre`, `apellido`, `direccion`, `localidad`, `telefono`, `mail`, `foto_dni`) VALUES
+(2, 3, 12344444, 'sosa', 'raul emanuel', '2', '0', '02665032890', 'importstore.sanluis@gmail.com', NULL),
+(3, 4, 123123, 'sosa', 'raul emanuel', '2', '0', '02665032890', '1111.sanluis@gmail.com', '/uploads/dni/1730924089375.png');
 
 -- --------------------------------------------------------
 
@@ -138,11 +157,11 @@ CREATE TABLE `persona` (
 
 CREATE TABLE `sucursal` (
   `sucursalid` int(20) NOT NULL,
-  `nombre_sucrsal` VARCHAR(100) NOT NULL,
+  `nombre_sucrsal` varchar(100) NOT NULL,
   `direccion` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `estado` tinyint(4) NOT NULL,
-  `telefono` VARCHAR(20),
-  `email` VARCHAR(100)
+  `telefono` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -169,7 +188,7 @@ CREATE TABLE `turno` (
   `persona_id` int(20) NOT NULL,
   `calendar_id` int(20) NOT NULL,
   `fecha` date NOT NULL,
-  `hora` TIME NOT NULL,
+  `hora` time NOT NULL,
   `estadoturno_id` int(4) NOT NULL,
   `observaciones` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -187,6 +206,14 @@ CREATE TABLE `user` (
   `password` varchar(255) NOT NULL,
   `estado` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `user`
+--
+
+INSERT INTO `user` (`userid`, `idperfil`, `nombre_user`, `password`, `estado`) VALUES
+(3, 4, 'importstore.sanluis@gmail.com', '123', 1),
+(4, 4, '1111.sanluis@gmail.com', '123', 1);
 
 --
 -- Índices para tablas volcadas
@@ -317,13 +344,13 @@ ALTER TABLE `medicos`
 -- AUTO_INCREMENT de la tabla `perfil`
 --
 ALTER TABLE `perfil`
-  MODIFY `perfilid` int(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `perfilid` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `persona`
 --
 ALTER TABLE `persona`
-  MODIFY `personaid` int(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `personaid` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `sucursal`
@@ -347,7 +374,7 @@ ALTER TABLE `turno`
 -- AUTO_INCREMENT de la tabla `user`
 --
 ALTER TABLE `user`
-  MODIFY `userid` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `userid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Restricciones para tablas volcadas

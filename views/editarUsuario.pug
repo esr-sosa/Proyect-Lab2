@@ -12,8 +12,10 @@ block content
     div
       label(for='tipo') Tipo:
       select(name='tipo', required)
-        option(value='paciente', selected=usuario.tipo === 'admin') Paciente
-        option(value='profesional', selected=usuario.tipo === 'user') Profesional
+        option(value='admin', selected=usuario.tipo === 'admin') Administrador
+        option(value='medico', selected=usuario.tipo === 'medico') Médico
+        option(value='secretaria', selected=usuario.tipo === 'secretaria') Secretaria
+        option(value='paciente', selected=usuario.tipo === 'paciente') Paciente
     div
       button(type='submit') Actualizar
   a(href='/usuarios') Volver a la lista de usuarios
