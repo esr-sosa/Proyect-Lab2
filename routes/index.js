@@ -5,11 +5,6 @@ const db = require('../config/db');
 const multer = require('multer');
 const path = require('path');
 
-router.use(session({
-  secret: 'perrito', 
-  resave: false,
-  saveUninitialized: true,
-}));
 
 // Configuración de multer para almacenar las fotos
 const storage = multer.diskStorage({
@@ -29,7 +24,7 @@ router.get('/login', (req, res) => {
 });
 
 // Ruta POST para el inicio de sesión
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   db.query(`
@@ -164,7 +159,10 @@ router.get('/inicio', (req, res) => {
 
 // Ruta para la página principal
 router.get('/', (req, res) => {
-  res.render('index', { title: 'Agenda Médica' });
+  res.render('index', { 
+    title: 'Agenda Médica',
+    user: req.session.user 
+  });
 });
 
 module.exports = router;

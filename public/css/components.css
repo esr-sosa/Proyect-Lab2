@@ -82,32 +82,52 @@
 
 .table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
+  background: white;
+  border-radius: var(--border-radius);
 }
 
-.table th {
-  background: #f8fafc;
-  font-weight: 600;
-}
-
-.table td, .table th {
+.table th,
+.table td {
   padding: 1rem;
+  text-align: left;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.actions {
+.table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.table tr:hover {
+  background-color: #f9fafb;
+}
+
+.table td.actions {
   display: flex;
   gap: 0.5rem;
+}
+
+.table .btn-secondary {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.table .btn-secondary i {
+  font-size: 1rem;
 }
 
 /* Cards */
 .card {
   background: white;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 2rem;
-  margin-bottom: 2rem;
+  margin: 2rem auto;
 }
 
 .card-title {
@@ -369,4 +389,91 @@
   background-color: #fee2e2;
   color: #991b1b;
   border: 1px solid #fecaca;
+}
+
+/* Estilos para el formulario de edición de usuario */
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 2rem;
+  margin: 2rem auto;
+}
+
+.card-title {
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 1.75rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.button-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.btn-primary, .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: var(--text-color);
+  border: 1px solid #ddd;
+}
+
+/* Botón volver */
+.card .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
+}
+
+/* Tarjeta para formularios */
+.card-form {
+  max-width: 600px;
+}
+
+/* Tarjeta para tablas */
+.card-table {
+  max-width: 1200px;
 }

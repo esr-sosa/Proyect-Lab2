@@ -12,7 +12,10 @@ function isAuthenticated(req, res, next) {
 
 // Ruta GET para mostrar la vista del calendario
 router.get('/', isAuthenticated, (req, res) => {
-  res.render('agenda', { title: 'Agenda Médica' });
+  res.render('agenda', { 
+    title: 'Agenda Médica',
+    user: req.session.user 
+  });
 });
 
 module.exports = router;

@@ -1,21 +1,31 @@
 extends layout
 
 block content
-  h1 Editar Usuario
-  form(action=`/usuarios/editar/${usuario.id}`, method='POST')
-    div
-      label(for='username') Username:
-      input(type='text', name='username', value=usuario.username, required)
-    div
-      label(for='password') Contraseña:
-      input(type='password', name='password', value=usuario.password, required)
-    div
-      label(for='tipo') Tipo:
-      select(name='tipo', required)
-        option(value='admin', selected=usuario.tipo === 'admin') Administrador
-        option(value='medico', selected=usuario.tipo === 'medico') Médico
-        option(value='secretaria', selected=usuario.tipo === 'secretaria') Secretaria
-        option(value='paciente', selected=usuario.tipo === 'paciente') Paciente
-    div
-      button(type='submit') Actualizar
-  a(href='/usuarios') Volver a la lista de usuarios
+  div.card.card-form
+    h2.card-title Editar Usuario
+    
+    if error
+      div.alert.alert-danger
+        | #{error}
+    
+    form(action=`/usuarios/editar/${usuario.userid}`, method='POST')
+      div.form-group
+        label.form-label(for='username') Username:
+        input.form-control(type='text', name='username', value=usuario.nombre_user, required)
+      div.form-group
+        label.form-label(for='password') Contraseña:
+        input.form-control(type='password', name='password', placeholder="Dejar vacío para mantener la actual")
+      div.form-group
+        label.form-label(for='tipo') Tipo:
+        select.form-control(name='tipo', required)
+          option(value='admin', selected=usuario.tipo_perfil === 'admin') Administrador
+          option(value='medico', selected=usuario.tipo_perfil === 'medico') Médico
+          option(value='secretaria', selected=usuario.tipo_perfil === 'secretaria') Secretaria
+          option(value='paciente', selected=usuario.tipo_perfil === 'paciente') Paciente
+      div.button-container
+        button.btn-primary(type='submit')
+          i.fas.fa-save
+          span Actualizar
+        a.btn-secondary(href='/usuarios')
+          i.fas.fa-arrow-left
+          span Volver
