@@ -149,6 +149,15 @@
   border: 1px solid #fecaca;
 }
 
+.alert-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .dashboard-container {
@@ -476,4 +485,111 @@
 /* Tarjeta para tablas */
 .card-table {
   max-width: 1200px;
+}
+
+.logo a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.logo a:hover {
+  opacity: 0.8;
+}
+
+.logo i {
+  margin-right: 10px;
+}
+
+.success-message {
+  margin: 0;
+  white-space: pre-line;
+  font-family: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.user-info-header {
+  display: flex;
+  align-items: center;
+}
+
+.current-photo {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.current-photo img {
+  max-width: 150px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Estilos para la foto de perfil en el sidebar */
+.sidebar .user-info {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.sidebar .user-info img.user-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  border: 3px solid #fff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar .user-info i.fas.fa-user-circle {
+  font-size: 120px;
+  color: #ddd;
+  margin-bottom: 1rem;
+}
+
+/* Estilos para la foto de perfil en el header */
+.user-header .user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+
+.user-header i.fas.fa-user-circle {
+  font-size: 40px;
+  color: #fff;
+}
+
+/* Estilos para la foto de perfil en el formulario de edición */
+.current-photo {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.current-photo img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }

@@ -12,8 +12,9 @@ html(lang="es")
     header.main-header
       div.header-content
         div.logo
-          i.fas.fa-hospital-alt
-          h1 Portal de Consultas Médicas
+          a(href="/inicio")
+            i.fas.fa-hospital-alt
+            h1 Portal de Consultas Médicas
         if !user
           div.auth-buttons
             a(href="/login", class="btn-primary")
@@ -22,7 +23,10 @@ html(lang="es")
         if user
           div.user-header
             div.user-info-header
-              i.fas.fa-user-circle
+              if user.foto_perfil
+                img.user-avatar(src=`/uploads/profile/${user.foto_perfil}` alt="Foto de perfil")
+              else
+                i.fas.fa-user-circle
               div.user-details
                 span.user-name #{user.nombre} #{user.apellido}
                 span.user-role #{user.tipo_perfil}

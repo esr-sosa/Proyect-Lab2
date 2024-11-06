@@ -4,7 +4,15 @@ block content
   div.card
     h2.card-title Agregar Paciente
     
-    form(action="/paciente/agregar", method="POST")
+    if error
+      div.alert.alert-danger
+        | #{error}
+    
+    if success
+      div.alert.alert-success
+        pre.success-message #{success}
+    
+    form(action="/paciente/agregar", method="POST", enctype="multipart/form-data")
       div.form-group
         label.form-label(for="nombre") Nombre:
         input.form-control(type="text", name="nombre", required, placeholder="Ingrese el nombre del paciente")
@@ -13,18 +21,20 @@ block content
         input.form-control(type="text", name="apellido", required, placeholder="Ingrese el apellido del paciente")
       div.form-group
         label.form-label(for="dni") DNI:
-        input.form-control(type="text", name="dni", required, placeholder="Ingrese el DNI del paciente")
+        input.form-control(type="number", name="dni", required, placeholder="Ingrese el DNI sin puntos")
       div.form-group
-        label.form-label(for="obra_social") Obra Social:
-        select.form-control(name="obra_social", required)
-          option(value="") Seleccione una opción
-          option(value="OSDE") OSDE
-          option(value="Swiss Medical") Swiss Medical
-          option(value="PAMI") PAMI
-          option(value="Otros") Otros
+        label.form-label(for="foto_dni") Foto DNI:
+        input.form-control(type="file", name="foto_dni", accept="image/*", required)
       div.form-group
-        label.form-label(for="datos_contacto") Datos de Contacto:
-        textarea.form-control(name="datos_contacto", required, placeholder="Ingrese los datos de contacto del paciente")
+        label.form-label(for="email") Email:
+        input.form-control(type="email", name="email", required, placeholder="Ingrese el email del paciente")
       div.form-group
-        button.btn-primary(type="submit") Agregar Paciente
-        a.btn-secondary(href="/inicio") Volver
+        label.form-label(for="telefono") Teléfono:
+        input.form-control(type="text", name="telefono", required, placeholder="Ingrese el teléfono del paciente")
+      div.button-container
+        button.btn-primary(type="submit")
+          i.fas.fa-user-plus
+          span Agregar Paciente
+        a.btn-secondary(href="/inicio")
+          i.fas.fa-arrow-left
+          span Volver

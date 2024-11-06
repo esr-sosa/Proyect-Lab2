@@ -18,6 +18,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// Configuración de multer para almacenar las fotos de perfil
+const storage_profile = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/uploads/profile')
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname))
+  }
+});
+
+const uploadProfile = multer({ storage: storage_profile });
+
 // Ruta para la página de login
 router.get('/login', (req, res) => {
   res.render('index', { title: 'Login', error: null });
@@ -37,7 +49,8 @@ router.post('/login', async (req, res) => {
       p.permisos,
       per.nombre,
       per.apellido,
-      per.personaid
+      per.personaid,
+      per.foto_perfil
     FROM user u
     JOIN perfil p ON u.idperfil = p.perfilid
     LEFT JOIN persona per ON per.userid = u.userid
@@ -66,6 +79,7 @@ router.post('/login', async (req, res) => {
         apellido: user.apellido,
         username: user.nombre_user,
         tipo_perfil: user.tipo_perfil,
+        foto_perfil: user.foto_perfil,
         isAdmin: user.tipo_perfil === 'admin',
         isMedico: user.tipo_perfil === 'medico',
         isSecretaria: user.tipo_perfil === 'secretaria',
@@ -163,6 +177,62 @@ router.get('/', (req, res) => {
     title: 'Agenda Médica',
     user: req.session.user 
   });
+});
+
+// Ruta para la página de perfil
+router.get('/mi-perfil', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  res.render('miPerfil', {
+    title: 'Mi Perfil',
+    user: req.session.user
+  });
+});
+
+router.post('/mi-perfil', uploadProfile.single('foto_perfil'), async (req, res) => {
+  try {
+    const { password, confirm_password } = req.body;
+    const foto_perfil = req.file ? req.file.filename : null;
+    
+    if (password && password !== confirm_password) {
+      return res.render('miPerfil', {
+        title: 'Mi Perfil',
+        user: req.session.user,
+        error: 'Las contraseñas no coinciden'
+      });
+    }
+
+    // Actualizar foto de perfil si se subió una nueva
+    if (foto_perfil) {
+      await db.promise().query(
+        'UPDATE persona SET foto_perfil = ? WHERE userid = ?',
+        [foto_perfil, req.session.user.id]
+      );
+      req.session.user.foto_perfil = foto_perfil;
+    }
+
+    // Actualizar contraseña si se proporcionó una nueva
+    if (password) {
+      await db.promise().query(
+        'UPDATE user SET password = ? WHERE userid = ?',
+        [password, req.session.user.id]
+      );
+    }
+
+    res.render('miPerfil', {
+      title: 'Mi Perfil',
+      user: req.session.user,
+      success: 'Perfil actualizado exitosamente'
+    });
+  } catch (error) {
+    console.error(error);
+    res.render('miPerfil', {
+      title: 'Mi Perfil',
+      user: req.session.user,
+      error: 'Error al actualizar el perfil'
+    });
+  }
 });
 
 module.exports = router;

@@ -8,7 +8,13 @@ block content
       div.alert.alert-danger
         | #{error}
     
-    form(action=`/usuarios/editar/${usuario.userid}`, method='POST')
+    form(action=`/usuarios/editar/${usuario.userid}`, method='POST', enctype="multipart/form-data")
+      if usuario.foto_perfil
+        div.current-photo
+          img(src=`/uploads/profile/${usuario.foto_perfil}` alt="Foto de perfil actual")
+      div.form-group
+        label.form-label(for='foto_perfil') Foto de Perfil:
+        input.form-control(type='file', name='foto_perfil', accept="image/*")
       div.form-group
         label.form-label(for='username') Username:
         input.form-control(type='text', name='username', value=usuario.nombre_user, required)
@@ -25,7 +31,7 @@ block content
       div.button-container
         button.btn-primary(type='submit')
           i.fas.fa-save
-          span Actualizar
+          span Guardar Cambios
         a.btn-secondary(href='/usuarios')
           i.fas.fa-arrow-left
           span Volver

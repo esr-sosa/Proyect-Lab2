@@ -4,7 +4,10 @@ block content
   div.dashboard-container
     div.sidebar
       div.user-info
-        i.fas.fa-user-circle
+        if user.foto_perfil
+          img.user-avatar(src=`/uploads/profile/${user.foto_perfil}` alt="Foto de perfil")
+        else
+          i.fas.fa-user-circle
         h2 #{user.nombre} #{user.apellido}
         p.user-type #{user.tipo_perfil}
       
@@ -93,6 +96,14 @@ block content
               a(href="/logout")
                 i.fas.fa-sign-out-alt
                 span Cerrar Sesión
+
+        div.menu-section
+          h3 Mi Cuenta
+          ul
+            li
+              a(href="/mi-perfil")
+                i.fas.fa-user-edit
+                span Mi Perfil
 
     div.main-content
       div.welcome-banner
