@@ -24,32 +24,39 @@ function isAdmin(req, res, next) {
 }
 
 // Listar usuarios
-router.get('/', isAdmin, (req, res) => {
-  db.query(`
-    SELECT 
-      u.userid,
-      u.nombre_user,
-      u.estado,
-      per.nombre,
-      per.apellido,
-      p.tipo as tipo_perfil
-    FROM user u
-    JOIN perfil p ON u.idperfil = p.perfilid
-    LEFT JOIN persona per ON per.userid = u.userid
-    ORDER BY u.userid`,
-    (err, usuarios) => {
-      if (err) {
-        console.error('Error al obtener usuarios:', err);
-        return res.status(500).send('Error al obtener usuarios');
-      }
-      
-      res.render('usuarios', { 
-        title: 'Lista de Usuarios',
-        user: req.session.user,
-        usuarios: usuarios 
-      });
-    }
-  );
+router.get('/', isAdmin, async (req, res) => {
+  try {
+    const [usuarios] = await db.promise().query(`
+      SELECT 
+        u.userid, 
+        u.nombre_user, 
+        u.estado,
+        p.nombre,
+        p.apellido,
+        p.foto_perfil,
+        pf.tipo as tipo_perfil
+      FROM user u
+      LEFT JOIN persona p ON p.userid = u.userid
+      JOIN perfil pf ON pf.perfilid = u.idperfil
+      ORDER BY u.userid DESC
+    `);
+
+    res.render('usuarios', {
+      title: 'Gestión de Usuarios',
+      user: req.session.user,
+      usuarios,
+      error: null,
+      success: null
+    });
+  } catch (error) {
+    console.error('Error al obtener usuarios:', error);
+    res.render('usuarios', {
+      title: 'Gestión de Usuarios',
+      user: req.session.user,
+      usuarios: [],
+      error: 'Error al cargar la lista de usuarios'
+    });
+  }
 });
 
 // Editar usuario
@@ -126,6 +133,27 @@ router.post('/editar/:id', upload.single('foto_perfil'), async (req, res) => {
     res.render('editarUsuario', { 
       error: 'Error al actualizar el usuario',
       usuario: req.body
+    });
+  }
+});
+
+// Ruta para cambiar el estado del usuario
+router.post('/toggle-status/:id', isAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body;
+  
+  try {
+    await db.promise().query(
+      'UPDATE user SET estado = ? WHERE userid = ?',
+      [estado, id]
+    );
+    
+    res.json({ success: true, message: 'Estado actualizado correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar estado:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al actualizar el estado del usuario' 
     });
   }
 });

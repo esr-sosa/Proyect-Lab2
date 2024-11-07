@@ -32,3 +32,25 @@ html(lang="es")
                 span.user-role #{user.tipo_perfil}
     main.main-content
       block content
+    
+    script.
+      function toggleUserStatus(userId, newStatus) {
+        fetch(`/usuarios/toggle-status/${userId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ estado: newStatus })
+        })
+        .then(response => {
+          if (response.ok) {
+            window.location.reload();
+          } else {
+            alert('Error al cambiar el estado del usuario');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error al cambiar el estado del usuario');
+        });
+      }

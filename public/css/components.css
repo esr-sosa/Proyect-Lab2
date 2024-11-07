@@ -593,3 +593,64 @@
   border: 3px solid #fff;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
+
+/* Ajuste del tamaño de avatar en tabla de usuarios */
+.table .user-avatar-small {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.table .fas.fa-user-circle {
+  font-size: 30px;
+  color: #ccc;
+}
+
+/* Estilos para los botones de acción en tablas */
+.table .actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.table .btn-edit {
+  color: #0056b3;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.table .btn-edit:hover {
+  background-color: #e9ecef;
+}
+
+.table .btn-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.table .btn-toggle .fa-toggle-on {
+  color: #28a745;
+  font-size: 1.2rem;
+}
+
+.table .btn-toggle .fa-toggle-off {
+  color: #dc3545;
+  font-size: 1.2rem;
+}
+
+.table .btn-toggle:hover {
+  background-color: #e9ecef;
+}
