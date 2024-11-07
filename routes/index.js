@@ -4,6 +4,8 @@ const router = express.Router();
 const db = require('../config/db');
 const multer = require('multer');
 const path = require('path');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 
 // Configuración de multer para almacenar las fotos
@@ -39,56 +41,68 @@ router.get('/login', (req, res) => {
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  db.query(`
-    SELECT 
-      u.userid,
-      u.nombre_user,
-      u.estado,
-      p.perfilid,
-      p.tipo as tipo_perfil,
-      p.permisos,
-      per.nombre,
-      per.apellido,
-      per.personaid,
-      per.foto_perfil
-    FROM user u
-    JOIN perfil p ON u.idperfil = p.perfilid
-    LEFT JOIN persona per ON per.userid = u.userid
-    WHERE u.nombre_user = ? AND u.password = ? AND u.estado = 1`,
-    [username, password],
-    (err, results) => {
-      if (err) {
-        console.error('Error en login:', err);
-        return res.render('index', { 
-          title: 'Login', 
-          error: 'Error en la base de datos' 
-        });
-      }
+  try {
+    // Primero obtener el usuario
+    const [users] = await db.promise().query(`
+      SELECT 
+        u.userid,
+        u.nombre_user,
+        u.password,
+        u.estado,
+        p.perfilid,
+        p.tipo as tipo_perfil,
+        p.permisos,
+        per.nombre,
+        per.apellido,
+        per.personaid,
+        per.foto_perfil
+      FROM user u
+      JOIN perfil p ON u.idperfil = p.perfilid
+      LEFT JOIN persona per ON per.userid = u.userid
+      WHERE u.nombre_user = ? AND u.estado = 1`,
+      [username]
+    );
 
-      if (results.length === 0) {
-        return res.render('index', { 
-          title: 'Login', 
-          error: 'Usuario o contraseña incorrectos' 
-        });
-      }
-
-      const user = results[0];
-      req.session.user = {
-        id: user.userid,
-        nombre: user.nombre,
-        apellido: user.apellido,
-        username: user.nombre_user,
-        tipo_perfil: user.tipo_perfil,
-        foto_perfil: user.foto_perfil,
-        isAdmin: user.tipo_perfil === 'admin',
-        isMedico: user.tipo_perfil === 'medico',
-        isSecretaria: user.tipo_perfil === 'secretaria',
-        isPaciente: user.tipo_perfil === 'paciente'
-      };
-      
-      res.redirect('/inicio');
+    if (users.length === 0) {
+      return res.render('index', { 
+        title: 'Login', 
+        error: 'Usuario o contraseña incorrectos' 
+      });
     }
-  );
+
+    const user = users[0];
+    
+    // Verificar la contraseña
+    const match = await bcrypt.compare(password, user.password);
+    
+    if (!match) {
+      return res.render('index', { 
+        title: 'Login', 
+        error: 'Usuario o contraseña incorrectos' 
+      });
+    }
+
+    req.session.user = {
+      id: user.userid,
+      nombre: user.nombre,
+      apellido: user.apellido,
+      username: user.nombre_user,
+      tipo_perfil: user.tipo_perfil,
+      foto_perfil: user.foto_perfil,
+      isAdmin: user.tipo_perfil === 'admin',
+      isMedico: user.tipo_perfil === 'medico',
+      isSecretaria: user.tipo_perfil === 'secretaria',
+      isPaciente: user.tipo_perfil === 'paciente'
+    };
+    
+    res.redirect('/inicio');
+  } catch (error) {
+    console.error('Error en login:', error);
+    res.render('index', { 
+      title: 'Login', 
+      error: 'Error en la base de datos' 
+    });
+  }
 });
 
 // Ruta para la página de registro
@@ -108,9 +122,12 @@ router.post('/register', upload.single('foto_dni'), async (req, res) => {
     localidad 
   } = req.body;
   
-  const foto_dni = req.file ? `/uploads/dni/${req.file.filename}` : null;
-
   try {
+    // Hash de la contraseña
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
+    const foto_dni = req.file ? `/uploads/dni/${req.file.filename}` : null;
+
     // Verificación de usuario existente
     const [existingUser] = await db.promise().query(
       'SELECT * FROM persona WHERE dni = ? OR mail = ?',
@@ -126,17 +143,17 @@ router.post('/register', upload.single('foto_dni'), async (req, res) => {
 
     await db.promise().beginTransaction();
 
-    // Primero creamos el usuario
+    // Crear usuario con contraseña hasheada
     const [userResult] = await db.promise().query(
-      'INSERT INTO user (nombre_user, password, estado, idperfil) VALUES (?, ?, ?, ?)',
-      [mail, password, 1, 4]
+      'INSERT INTO user (nombre_user, password, estado, idperfil, createdAt, updateAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
+      [mail, hashedPassword, 1, 4]
     );
 
     const userid = userResult.insertId;
 
     // Luego creamos la persona
     await db.promise().query(
-      'INSERT INTO persona (userid, dni, nombre, apellido, telefono, mail, direccion, localidad, foto_dni) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO persona (userid, dni, nombre, apellido, telefono, mail, direccion, localidad, foto_dni, createdAt, updateAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
       [userid, dni, nombre, apellido, telefono, mail, direccion, localidad, foto_dni]
     );
 
@@ -203,21 +220,22 @@ router.post('/mi-perfil', uploadProfile.single('foto_perfil'), async (req, res) 
       });
     }
 
+    // Actualizar contraseña si se proporcionó una nueva
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      await db.promise().query(
+        'UPDATE user SET password = ?, updateAt = NOW() WHERE userid = ?',
+        [hashedPassword, req.session.user.id]
+      );
+    }
+
     // Actualizar foto de perfil si se subió una nueva
     if (foto_perfil) {
       await db.promise().query(
-        'UPDATE persona SET foto_perfil = ? WHERE userid = ?',
+        'UPDATE persona SET foto_perfil = ?, updateAt = NOW() WHERE userid = ?',
         [foto_perfil, req.session.user.id]
       );
       req.session.user.foto_perfil = foto_perfil;
-    }
-
-    // Actualizar contraseña si se proporcionó una nueva
-    if (password) {
-      await db.promise().query(
-        'UPDATE user SET password = ? WHERE userid = ?',
-        [password, req.session.user.id]
-      );
     }
 
     res.render('miPerfil', {

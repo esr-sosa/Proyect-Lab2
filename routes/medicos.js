@@ -29,7 +29,7 @@ router.get('/', isAdmin, async (req, res) => {
 });
 
 router.post('/agregar', isAdmin, async (req, res) => {
-  const { nombre, apellido, dni, especialidad, matricula, email, telefono } = req.body;
+  const { nombre, apellido, dni, especialidad, matricula, email, telefono, direccion, localidad } = req.body;
   
   try {
     // Validar que el DNI y email no existan
@@ -55,23 +55,23 @@ router.post('/agregar', isAdmin, async (req, res) => {
 
     // 1. Crear el usuario con el DNI como contraseña
     const [userResult] = await db.promise().query(
-      'INSERT INTO user (nombre_user, password, idperfil, estado) VALUES (?, ?, ?, 1)',
-      [email, dni, 2, 1] // Agregamos estado = 1 para activo
+      'INSERT INTO user (nombre_user, password, idperfil, estado, createdAt, updateAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
+      [email, dni, 2, 1]
     );
     
     const userId = userResult.insertId;
 
     // 2. Ahora insertar en la tabla persona con el userid
     const [personaResult] = await db.promise().query(
-      'INSERT INTO persona (nombre, apellido, dni, mail, telefono, userid) VALUES (?, ?, ?, ?, ?, ?)',
-      [nombre, apellido, dni, email, telefono, userId]
+      'INSERT INTO persona (nombre, apellido, dni, mail, telefono, userid, direccion, localidad, createdAt, updateAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
+      [nombre, apellido, dni, email, telefono, userId, direccion, localidad]
     );
     
     const personaId = personaResult.insertId;
     
     // 3. Insertar en la tabla medicos
     const [medicoResult] = await db.promise().query(
-      'INSERT INTO medicos (personaid, especialidadId, estado) VALUES (?, ?, 1)',
+      'INSERT INTO medicos (personaid, especialidadId, estado, createdAt, updateAt) VALUES (?, ?, 1, NOW(), NOW())',
       [personaId, especialidad]
     );
     
@@ -79,7 +79,7 @@ router.post('/agregar', isAdmin, async (req, res) => {
     
     // 4. Insertar en la tabla medico_esp
     await db.promise().query(
-      'INSERT INTO medico_esp (matricula, medicoid, especialidadid) VALUES (?, ?, ?)',
+      'INSERT INTO medico_esp (matricula, medicoid, especialidadid, createdAt, updateAt) VALUES (?, ?, ?, NOW(), NOW())',
       [matricula, medicoId, especialidad]
     );
     

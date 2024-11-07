@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 07-11-2024 a las 00:22:19
+-- Tiempo de generación: 07-11-2024 a las 18:46:57
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -34,7 +34,9 @@ CREATE TABLE `agenda` (
   `ttipoid` int(20) NOT NULL,
   `nombreagenda` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `duracion` int(100) NOT NULL,
-  `medico_id` int(100) NOT NULL
+  `medico_id` int(100) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -49,7 +51,9 @@ CREATE TABLE `calendar` (
   `fechaturno` date NOT NULL,
   `inicioturno` time NOT NULL,
   `finalturno` time NOT NULL,
-  `estado` tinyint(4) NOT NULL
+  `estado` tinyint(4) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -61,34 +65,10 @@ CREATE TABLE `calendar` (
 CREATE TABLE `especialidad` (
   `especialidadId` int(11) NOT NULL,
   `nombre_esp` varchar(250) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `estado` tinyint(4) NOT NULL
+  `estado` tinyint(4) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `especialidad`
---
-
-INSERT INTO `especialidad` (`especialidadId`, `nombre_esp`, `estado`) VALUES
-(1, 'Clínica Médica', 1),
-(2, 'Pediatría', 1),
-(3, 'Cardiología', 1),
-(4, 'Dermatología', 1),
-(5, 'Traumatología', 1),
-(6, 'Ginecología', 1),
-(7, 'Oftalmología', 1),
-(8, 'Otorrinolaringología', 1),
-(9, 'Neurología', 1),
-(10, 'Psiquiatría', 1),
-(11, 'Urología', 1),
-(12, 'Endocrinología', 1),
-(13, 'Gastroenterología', 1),
-(14, 'Reumatología', 1),
-(15, 'Nefrología', 1),
-(16, 'Oncología', 1),
-(17, 'Hematología', 1),
-(18, 'Infectología', 1),
-(19, 'Neumonología', 1),
-(20, 'Medicina Familiar', 1);
 
 -- --------------------------------------------------------
 
@@ -98,7 +78,9 @@ INSERT INTO `especialidad` (`especialidadId`, `nombre_esp`, `estado`) VALUES
 
 CREATE TABLE `estado` (
   `estadoid` int(11) NOT NULL,
-  `tipo` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
+  `tipo` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -111,17 +93,10 @@ CREATE TABLE `medicos` (
   `medicoid` int(11) NOT NULL,
   `personaid` int(11) NOT NULL,
   `especialidadId` int(11) NOT NULL,
-  `estado` tinyint(4) NOT NULL
+  `estado` tinyint(4) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `medicos`
---
-
-INSERT INTO `medicos` (`medicoid`, `personaid`, `especialidadId`, `estado`) VALUES
-(1, 5, 6, 1),
-(2, 6, 6, 1),
-(3, 8, 7, 1);
 
 -- --------------------------------------------------------
 
@@ -132,17 +107,10 @@ INSERT INTO `medicos` (`medicoid`, `personaid`, `especialidadId`, `estado`) VALU
 CREATE TABLE `medico_esp` (
   `matricula` varchar(100) NOT NULL,
   `medicoid` int(20) NOT NULL,
-  `especialidadid` int(20) NOT NULL
+  `especialidadid` int(20) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `medico_esp`
---
-
-INSERT INTO `medico_esp` (`matricula`, `medicoid`, `especialidadid`) VALUES
-('123123', 1, 6),
-('123', 2, 6),
-('12312312', 3, 7);
 
 -- --------------------------------------------------------
 
@@ -174,7 +142,7 @@ INSERT INTO `perfil` (`perfilid`, `tipo`, `permisos`) VALUES
 
 CREATE TABLE `persona` (
   `personaid` int(20) NOT NULL,
-  `userid` int(11) NOT NULL,
+  `userid` int(11) DEFAULT NULL,
   `dni` int(20) NOT NULL,
   `nombre` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `apellido` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
@@ -183,20 +151,18 @@ CREATE TABLE `persona` (
   `telefono` varchar(20) NOT NULL,
   `mail` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `foto_dni` varchar(255) DEFAULT NULL,
-  `foto_perfil` varchar(255) DEFAULT NULL
+  `foto_perfil` varchar(255) DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `persona`
 --
 
-INSERT INTO `persona` (`personaid`, `userid`, `dni`, `nombre`, `apellido`, `direccion`, `localidad`, `telefono`, `mail`, `foto_dni`, `foto_perfil`) VALUES
-(2, 3, 12344444, 'sosa', 'raul emanuel', '2', '0', '02665032890', 'importstore.sanluis@gmail.com', NULL, '1730934704964.jpg'),
-(3, 4, 123123, 'sosa', 'raul emanuel', '2', '0', '02665032890', '1111.sanluis@gmail.com', '/uploads/dni/1730924089375.png', NULL),
-(5, 5, 123123, 'facundo', 'sosa', '', '', '123123', 'prueba@gmail.com', NULL, NULL),
-(6, 6, 12312322, 'facundo', 'sosa', '', '', '123123', 'ba@gmail.com', NULL, NULL),
-(7, 7, 111, 'sosa', 'raul emanuel', '', '', '02665032890', '112sanluis@gmail.com', '1730933981589.png', NULL),
-(8, 8, 44234532, 'CANDELA', 'fleto ', '', '', '2665032890', 'raulemanuel1@gmail.com', NULL, NULL);
+INSERT INTO `persona` (`personaid`, `userid`, `dni`, `nombre`, `apellido`, `direccion`, `localidad`, `telefono`, `mail`, `foto_dni`, `foto_perfil`, `createdAt`, `updateAt`) VALUES
+(14, NULL, 5587412, 'mauro', 'benito', 'asd 585', 'juana koslay', '34252454', 'aa@gmail.com', NULL, NULL, '2024-11-07 15:04:53', '2024-11-07 15:04:53'),
+(16, 11, 784562, 'jose', 'cito', 'Colon 445 San luis', 'san luis', '232424', 'prueba@gmail.com', '/uploads/dni/1730989190795.png', NULL, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -210,7 +176,9 @@ CREATE TABLE `sucursal` (
   `direccion` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `estado` tinyint(4) NOT NULL,
   `telefono` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL
+  `email` varchar(100) DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -225,6 +193,16 @@ CREATE TABLE `tipoatencion` (
   `descripcion` varchar(100) NOT NULL,
   `observaciones` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tipoatencion`
+--
+
+INSERT INTO `tipoatencion` (`atencionid`, `tipo`, `descripcion`, `observaciones`) VALUES
+(2, 'primer consulta', 'paciente nuevo', ''),
+(3, 'control', 'control medico', ''),
+(4, 'estudios', 'tomografia, radiografia, resonancia', ''),
+(5, 'internacion', 'paciente ingresa como huesped', '');
 
 -- --------------------------------------------------------
 
@@ -253,20 +231,19 @@ CREATE TABLE `user` (
   `idperfil` int(11) NOT NULL DEFAULT 4,
   `nombre_user` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `estado` tinyint(4) NOT NULL
+  `estado` tinyint(4) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `user`
 --
 
-INSERT INTO `user` (`userid`, `idperfil`, `nombre_user`, `password`, `estado`) VALUES
-(3, 1, 'importstore.sanluis@gmail.com', '1234', 1),
-(4, 4, '1111.sanluis@gmail.com', '123', 1),
-(5, 2, 'prueba@gmail.com', '123456', 1),
-(6, 1, 'importstore.sanluis@gmail.com', '1234', 1),
-(7, 4, '112sanluis@gmail.com', '111', 1),
-(8, 2, 'raulemanuel1@gmail.com', '44234532', 1);
+INSERT INTO `user` (`userid`, `idperfil`, `nombre_user`, `password`, `estado`, `createdAt`, `updateAt`) VALUES
+(9, 1, 'mauro', '123456', 1, '2024-11-07 15:05:32', '2024-11-07 15:05:32'),
+(10, 1, 'mauro', '123456', 1, '2024-11-07 15:05:32', '2024-11-07 15:05:32'),
+(11, 4, 'prueba@gmail.com', '123456', 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 --
 -- Índices para tablas volcadas
@@ -328,6 +305,7 @@ ALTER TABLE `perfil`
 --
 ALTER TABLE `persona`
   ADD PRIMARY KEY (`personaid`),
+  ADD UNIQUE KEY `dni_2` (`dni`),
   ADD KEY `persona_ibfk_1` (`userid`),
   ADD KEY `dni` (`dni`);
 
@@ -403,7 +381,7 @@ ALTER TABLE `perfil`
 -- AUTO_INCREMENT de la tabla `persona`
 --
 ALTER TABLE `persona`
-  MODIFY `personaid` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `personaid` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `sucursal`
@@ -415,7 +393,7 @@ ALTER TABLE `sucursal`
 -- AUTO_INCREMENT de la tabla `tipoatencion`
 --
 ALTER TABLE `tipoatencion`
-  MODIFY `atencionid` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `atencionid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `turno`
@@ -427,7 +405,7 @@ ALTER TABLE `turno`
 -- AUTO_INCREMENT de la tabla `user`
 --
 ALTER TABLE `user`
-  MODIFY `userid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `userid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Restricciones para tablas volcadas

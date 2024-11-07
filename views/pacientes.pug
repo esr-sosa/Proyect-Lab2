@@ -24,6 +24,8 @@ block content
             th DNI
             th Email
             th Teléfono
+            th Dirección
+            th Localidad
             th Estado
             th Acciones
         tbody
@@ -40,6 +42,8 @@ block content
               td= paciente.dni
               td= paciente.mail
               td= paciente.telefono
+              td= paciente.direccion
+              td= paciente.localidad
               td(class=paciente.estado ? 'status-active' : 'status-inactive')
                 span.status-badge= paciente.estado ? 'Activo' : 'Inactivo'
               td.actions

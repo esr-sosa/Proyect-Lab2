@@ -114,8 +114,8 @@ router.post('/editar/:id', upload.single('foto_perfil'), async (req, res) => {
         : [username, perfil[0].perfilid, req.params.id];
         
       const query = password
-        ? 'UPDATE user SET nombre_user = ?, password = ?, idperfil = ? WHERE userid = ?'
-        : 'UPDATE user SET nombre_user = ?, idperfil = ? WHERE userid = ?';
+        ? 'UPDATE user SET nombre_user = ?, password = ?, idperfil = ?, updateAt = NOW() WHERE userid = ?'
+        : 'UPDATE user SET nombre_user = ?, idperfil = ?, updateAt = NOW() WHERE userid = ?';
 
       db.query(query, updateData, (err) => {
         if (err) {
@@ -144,7 +144,7 @@ router.post('/toggle-status/:id', isAdmin, async (req, res) => {
   
   try {
     await db.promise().query(
-      'UPDATE user SET estado = ? WHERE userid = ?',
+      'UPDATE user SET estado = ?, updateAt = NOW() WHERE userid = ?',
       [estado, id]
     );
     

@@ -24,7 +24,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/agregar', upload.single('foto_dni'), async (req, res) => {
-  const { nombre, apellido, dni, email, telefono } = req.body;
+  const { nombre, apellido, dni, email, telefono, direccion, localidad } = req.body;
   const foto_dni = req.file ? req.file.filename : null;
   
   try {
@@ -32,16 +32,16 @@ router.post('/agregar', upload.single('foto_dni'), async (req, res) => {
 
     // 1. Crear usuario con el DNI como contraseña
     const [userResult] = await db.promise().query(
-      'INSERT INTO user (nombre_user, password, idperfil, estado) VALUES (?, ?, ?, 1)',
-      [email, dni, 4, 1] // Agregamos estado = 1 para activo
+      'INSERT INTO user (nombre_user, password, idperfil, estado, createdAt, updateAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
+      [email, dni, 4, 1]
     );
     
     const userId = userResult.insertId;
 
     // 2. Insertar en la tabla persona
     const [personaResult] = await db.promise().query(
-      'INSERT INTO persona (nombre, apellido, dni, mail, telefono, foto_dni, userid) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [nombre, apellido, dni, email, telefono, foto_dni, userId]
+      'INSERT INTO persona (nombre, apellido, dni, mail, telefono, foto_dni, userid, direccion, localidad, createdAt, updateAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
+      [nombre, apellido, dni, email, telefono, foto_dni, userId, direccion, localidad]
     );
 
     await db.promise().commit();
