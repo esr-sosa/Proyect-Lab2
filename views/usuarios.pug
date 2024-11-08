@@ -9,10 +9,13 @@ block content
       if success
         div.alert.alert-success= success
       
+      div.search-container
+        input#searchInput.form-control(type="text", placeholder="Buscar usuario...")
+      
       table.table
         thead
           tr
-            th ID
+            th #
             th Foto
             th Nombre
             th Apellido
@@ -20,10 +23,10 @@ block content
             th Tipo
             th Estado
             th Acciones
-        tbody
-          each usuario in usuarios
-            tr
-              td= usuario.userid
+        tbody#tableBody
+          each usuario, index in usuarios
+            tr.searchable-row
+              td= index + 1
               td
                 if usuario.foto_perfil
                   img.user-avatar-small(src=`/uploads/profile/${usuario.foto_perfil}` alt="Foto de perfil")
@@ -39,15 +42,13 @@ block content
                 if user.isAdmin
                   a.btn-edit(href=`/usuarios/editar/${usuario.userid}` title="Editar")
                     i.fas.fa-edit
-                  button.btn-toggle(
-                    onclick=`toggleUserStatus(${usuario.userid}, ${!usuario.estado})` 
-                    title=usuario.estado ? 'Desactivar' : 'Activar'
-                  )
+                  button.btn-toggle(onclick=`toggleUserStatus(${usuario.userid}, ${!usuario.estado})` title=usuario.estado ? 'Desactivar' : 'Activar')
                     i.fas(class=usuario.estado ? 'fa-toggle-on' : 'fa-toggle-off')
+      
+      div.button-container
+        a.btn-secondary(href="/inicio")
+          i.fas.fa-arrow-left
+          span Volver al inicio
 
-    div.button-container
-      a.btn-primary(href="/inicio")
-        i.fas.fa-arrow-left
-        span Volver al inicio
-
-             
+block append scripts
+  script(src="/js/usuarios.js")

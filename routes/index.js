@@ -112,26 +112,24 @@ router.get('/register', (req, res) => {
 
 router.post('/register', upload.single('foto_dni'), async (req, res) => {
   const { 
+    nombre, 
+    apellido, 
     dni, 
-    name: nombre, 
-    lastname: apellido, 
-    phone: telefono, 
-    username: mail, 
+    telefono, 
+    username, 
     password,
     direccion,
     localidad 
   } = req.body;
   
   try {
-    // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    
     const foto_dni = req.file ? `/uploads/dni/${req.file.filename}` : null;
 
     // Verificación de usuario existente
     const [existingUser] = await db.promise().query(
       'SELECT * FROM persona WHERE dni = ? OR mail = ?',
-      [dni, mail]
+      [dni, username]
     );
 
     if (existingUser.length > 0) {
@@ -143,18 +141,18 @@ router.post('/register', upload.single('foto_dni'), async (req, res) => {
 
     await db.promise().beginTransaction();
 
-    // Crear usuario con contraseña hasheada
+    // Crear usuario
     const [userResult] = await db.promise().query(
       'INSERT INTO user (nombre_user, password, estado, idperfil, createdAt, updateAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
-      [mail, hashedPassword, 1, 4]
+      [username, hashedPassword, 1, 4]
     );
 
     const userid = userResult.insertId;
 
-    // Luego creamos la persona
+    // Crear persona
     await db.promise().query(
       'INSERT INTO persona (userid, dni, nombre, apellido, telefono, mail, direccion, localidad, foto_dni, createdAt, updateAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
-      [userid, dni, nombre, apellido, telefono, mail, direccion, localidad, foto_dni]
+      [userid, dni, nombre, apellido, telefono, username, direccion, localidad, foto_dni]
     );
 
     await db.promise().commit();

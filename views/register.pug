@@ -11,22 +11,22 @@ block content
     form(action="/register", method="POST", enctype="multipart/form-data")
       div.form-group
         label.form-label(for="nombre") Nombre:
-        input.form-control(type="text", name="name", required, placeholder="Tu nombre")
+        input.form-control(type="text", name="nombre", required, placeholder="Tu nombre")
       div.form-group
         label.form-label(for="apellido") Apellido:
-        input.form-control(type="text", name="lastname", required, placeholder="Tu apellido")
+        input.form-control(type="text", name="apellido", required, placeholder="Tu apellido")
       div.form-group
         label.form-label(for="dni") DNI:
-        input.form-control(type="number", name="dni", required, placeholder="Tu DNI sin puntos")
+        input.form-control(type="text", name="dni", required, placeholder="Tu DNI sin puntos")
       div.form-group
         label.form-label(for="foto_dni") Foto DNI:
         input.form-control(type="file", name="foto_dni", accept="image/*", required)
       div.form-group
         label.form-label(for="telefono") Teléfono:
-        input.form-control(type="text", name="phone", required, placeholder="Tu número de teléfono")
+        input.form-control(type="text", name="telefono", required, placeholder="Ej: 266-5032890")
       div.form-group
-        label.form-label(for="mail") Email:
-        input.form-control(type="email", name="username", required, placeholder="Tu correo electrónico")
+        label.form-label(for="username") Nombre de usuario o mail:
+        input.form-control(type="text", name="username", required, placeholder="Nombre de usuario o mail")
       div.form-group
         label.form-label(for="password") Contraseña:
         input.form-control(type="password", name="password", required, placeholder="Crea una contraseña segura")

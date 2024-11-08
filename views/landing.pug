@@ -1,0 +1,60 @@
+extends layout
+
+block content
+  div.landing-container
+    section.hero
+      div.hero-slider
+        div.slide(style="background-image: url('/images/slider1.jpg')")
+        div.slide(style="background-image: url('/images/slider2.jpg')")
+        div.slide(style="background-image: url('/images/slider3.jpg')")
+      div.hero-content
+        h1 Cuidamos tu Salud
+        p.hero-subtitle Atención médica de excelencia
+        div.hero-buttons
+          a.btn-primary(href="/login")
+            i.fas.fa-sign-in-alt
+            span Iniciar Sesión
+          a.btn-primary(href="/register")
+            i.fas.fa-user-plus
+            span Registrarse
+
+    section.features
+      div.section-header
+        h2 ¿Por qué elegirnos?
+        p Tu salud en manos expertas
+      
+      div.feature-cards
+        div.feature-card
+          i.fas.fa-calendar-check
+          h3 Turnos Online
+          p Sistema de turnos disponible las 24 horas. Agenda tu consulta de manera rápida y sencilla desde cualquier dispositivo.
+
+        div.feature-card
+          i.fas.fa-user-md
+          h3 Profesionales Expertos
+          p Contamos con un equipo médico de excelencia, especialistas certificados y en constante actualización profesional.
+
+        div.feature-card
+          i.fas.fa-hospital
+          h3 Tecnología Avanzada
+          p Instalaciones modernas y equipamiento de última generación para garantizar diagnósticos precisos y tratamientos efectivos.
+
+    section.specialties
+      div.section-header
+        h2 Especialidades Médicas
+        p Atención integral para toda la familia
+      
+      div.specialty-grid
+        - var especialidades = [{icon: 'fa-heart', name: 'Cardiología'}, {icon: 'fa-brain', name: 'Neurología'}, {icon: 'fa-bone', name: 'Traumatología'}, {icon: 'fa-teeth', name: 'Odontología'}, {icon: 'fa-eye', name: 'Oftalmología'}, {icon: 'fa-lungs', name: 'Neumonología'}]
+        each specialty in especialidades
+          div.specialty-item
+            i.fas(class=specialty.icon)
+            span= specialty.name
+
+    section.cta
+      div.cta-content
+        h2 ¿Necesitas atención médica?
+        p Agenda tu consulta ahora mismo
+        a.btn-primary(href="/login")
+          i.fas.fa-calendar-plus
+          span Solicitar Turno

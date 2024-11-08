@@ -3,6 +3,8 @@ const router = express.Router();
 const db = require('../config/db');
 const multer = require('multer');
 const path = require('path');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -99,7 +101,7 @@ router.post('/editar/:id', upload.single('foto_perfil'), async (req, res) => {
     }
     
     // Primero obtener el perfilid basado en el tipo
-    db.query('SELECT perfilid FROM perfil WHERE tipo = ?', [tipo], (err, perfil) => {
+    db.query('SELECT perfilid FROM perfil WHERE tipo = ?', [tipo], async (err, perfil) => {
       if (err || !perfil[0]) {
         return res.render('editarUsuario', {
           error: 'Error al actualizar usuario',
@@ -108,30 +110,36 @@ router.post('/editar/:id', upload.single('foto_perfil'), async (req, res) => {
         });
       }
 
-      // Construir la consulta SQL según si hay nueva contraseña o no
-      const updateData = password 
-        ? [username, password, perfil[0].perfilid, req.params.id]
-        : [username, perfil[0].perfilid, req.params.id];
+      try {
+        // Si hay contraseña nueva, encriptarla
+        let updateData;
+        let query;
         
-      const query = password
-        ? 'UPDATE user SET nombre_user = ?, password = ?, idperfil = ?, updateAt = NOW() WHERE userid = ?'
-        : 'UPDATE user SET nombre_user = ?, idperfil = ?, updateAt = NOW() WHERE userid = ?';
-
-      db.query(query, updateData, (err) => {
-        if (err) {
-          return res.render('editarUsuario', {
-            error: 'Error al actualizar usuario',
-            user: req.session.user,
-            usuario: req.body
-          });
+        if (password) {
+          const hashedPassword = await bcrypt.hash(password, saltRounds);
+          updateData = [username, hashedPassword, perfil[0].perfilid, req.params.id];
+          query = 'UPDATE user SET nombre_user = ?, password = ?, idperfil = ?, updateAt = NOW() WHERE userid = ?';
+        } else {
+          updateData = [username, perfil[0].perfilid, req.params.id];
+          query = 'UPDATE user SET nombre_user = ?, idperfil = ?, updateAt = NOW() WHERE userid = ?';
         }
+
+        await db.promise().query(query, updateData);
         res.redirect('/usuarios');
-      });
+      } catch (error) {
+        console.error('Error al actualizar usuario:', error);
+        res.render('editarUsuario', {
+          error: 'Error al actualizar usuario',
+          user: req.session.user,
+          usuario: req.body
+        });
+      }
     });
   } catch (error) {
-    console.error(error);
-    res.render('editarUsuario', { 
-      error: 'Error al actualizar el usuario',
+    console.error('Error al procesar la solicitud:', error);
+    res.render('editarUsuario', {
+      error: 'Error al actualizar usuario',
+      user: req.session.user,
       usuario: req.body
     });
   }

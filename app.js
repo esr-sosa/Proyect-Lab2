@@ -6,6 +6,8 @@ const agendaRouter = require('./routes/agenda');
 const pacienteRouter = require('./routes/paciente');
 const medicosRouter = require('./routes/medicos');
 const usuariosRouter = require('./routes/usuarios');
+const adminRouter = require('./routes/admin');
+const secretariaRouter = require('./routes/secretaria');
 
 const app = express();
 
@@ -30,12 +32,22 @@ app.set('view engine', 'pug');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  if (req.session.user) {
+    res.redirect('/inicio');
+  } else {
+    res.render('landing', { title: 'Bienvenido' });
+  }
+});
 
 app.use('/', indexRouter);
 app.use('/agenda', agendaRouter);
 app.use('/paciente', pacienteRouter);
+app.use('/pacientes', pacienteRouter);
 app.use('/medicos', medicosRouter);
 app.use('/usuarios', usuariosRouter);
+app.use('/admin', adminRouter);
+app.use('/secretaria', secretariaRouter);
 
 // Captura el error 404
 app.use((req, res, next) => {

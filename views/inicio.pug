@@ -17,10 +17,6 @@ block content
             h3 Gestión
             ul
               li
-                a(href="/profesionales")
-                  i.fas.fa-user-md
-                  span Profesionales
-              li
                 a(href="/usuarios")
                   i.fas.fa-users
                   span Usuarios
@@ -32,17 +28,29 @@ block content
                 a(href="/agenda")
                   i.fas.fa-calendar-alt
                   span Agenda
+              li
+                a(href="/medicos/especialidades")
+                  i.fas.fa-stethoscope
+                  span Especialidades
             
             h3 Agregar
             ul
               li
-                a(href="/paciente")
+                a(href="/paciente/agregar")
                   i.fas.fa-user-plus
                   span Nuevo Paciente
               li
                 a(href="/medicos")
                   i.fas.fa-user-md
                   span Nuevo Profesional
+              li
+                a(href="/admin/crear")
+                  i.fas.fa-user-shield
+                  span Nuevo Administrador
+              li
+                a(href="/secretaria/crear")
+                  i.fas.fa-user-tie
+                  span Nueva Secretaria
 
         if user.isSecretaria
           div.menu-section
@@ -60,7 +68,7 @@ block content
             h3 Agregar
             ul
               li
-                a(href="/paciente")
+                a(href="/paciente/agregar")
                   i.fas.fa-user-plus
                   span Nuevo Paciente
 

@@ -15,34 +15,34 @@ block content
     form(action="/medicos/agregar", method="POST")
       div.form-group
         label.form-label(for="nombre") Nombre:
-        input.form-control(type="text", name="nombre", required, placeholder="Nombre del profesional")
+        input.form-control(type="text", name="nombre", required, placeholder="Ingrese nombre/s del profesional")
       div.form-group
         label.form-label(for="apellido") Apellido:
-        input.form-control(type="text", name="apellido", required, placeholder="Apellido del profesional")
+        input.form-control(type="text", name="apellido", required, placeholder="Ingrese apellido/s del profesional")
       div.form-group
         label.form-label(for="dni") DNI:
-        input.form-control(type="text", name="dni", required, placeholder="DNI del profesional")
+        input.form-control(type="number", name="dni", required, placeholder="Ingrese DNI sin puntos")
+      div.form-group
+        label.form-label(for="email") Nombre de usuario o Mail:
+        input.form-control(type="text", name="email", required, placeholder="Ingrese nombre de usuario o mail")
+      div.form-group
+        label.form-label(for="telefono") Teléfono:
+        input.form-control(type="text", name="telefono", required, placeholder="266-5032890")
+      div.form-group
+        label.form-label(for="direccion") Dirección:
+        input.form-control(type="text", name="direccion", required, placeholder="Calle, número, piso, depto")
+      div.form-group
+        label.form-label(for="localidad") Localidad:
+        input.form-control(type="text", name="localidad", required, placeholder="Ingrese localidad o ciudad")
       div.form-group
         label.form-label(for="especialidad") Especialidad:
         select.form-control(name="especialidad", required)
           option(value="") Seleccione una especialidad
-          each especialidad in especialidades
-            option(value=especialidad.especialidadId)= especialidad.nombre_esp
+          each esp in especialidades
+            option(value=esp.especialidadId)= esp.nombre_esp
       div.form-group
         label.form-label(for="matricula") Matrícula:
-        input.form-control(type="text", name="matricula", required, placeholder="Número de matrícula")
-      div.form-group
-        label.form-label(for="email") Email:
-        input.form-control(type="email", name="email", required, placeholder="Email del profesional")
-      div.form-group
-        label.form-label(for="telefono") Teléfono:
-        input.form-control(type="text", name="telefono", required, placeholder="Teléfono del profesional")
-      div.form-group
-        label.form-label(for="direccion") Dirección:
-        input.form-control(type="text", name="direccion", required, placeholder="Dirección del profesional")
-      div.form-group
-        label.form-label(for="localidad") Localidad:
-        input.form-control(type="text", name="localidad", required, placeholder="Localidad del profesional")
+        input.form-control(type="text", name="matricula", required, placeholder="Ingrese número de matrícula")
       div.button-container
         button.btn-primary(type="submit")
           i.fas.fa-user-plus

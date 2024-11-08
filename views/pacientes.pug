@@ -10,7 +10,7 @@ block content
         div.alert.alert-success= success
       
       div.actions-top
-        a.btn-primary(href="/paciente")
+        a.btn-primary(href="/paciente/agregar")
           i.fas.fa-user-plus
           span Nuevo Paciente
       
@@ -60,3 +60,26 @@ block content
       a.btn-secondary(href="/inicio")
         i.fas.fa-arrow-left
         span Volver al inicio
+
+block scripts
+  script.
+    async function togglePatientStatus(userId, newStatus) {
+      try {
+        const response = await fetch(`/paciente/toggle-status/${userId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ estado: newStatus })
+        });
+        
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          alert('Error al cambiar el estado del paciente');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cambiar el estado del paciente');
+      }
+    }
