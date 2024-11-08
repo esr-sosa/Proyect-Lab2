@@ -307,26 +307,21 @@ input[type="file"].form-control {
 }
 
 .welcome-banner {
-  text-align: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  margin-top: 1rem;
+  text-align: center;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   border-radius: var(--border-radius);
   color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .welcome-banner h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   margin-bottom: 1rem;
-  font-weight: 600;
-  background: linear-gradient(to right, #fff, #ecf0f1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .welcome-banner p {
   font-size: 1.1rem;
-  color: #ecf0f1;
   opacity: 0.9;
 }
 
@@ -957,4 +952,10 @@ input[type="file"].form-control {
   gap: 1rem;
   margin-top: 2rem;
   justify-content: flex-end;
+}
+
+/* Ajuste del contenedor principal del dashboard */
+.dashboard-container .main-content {
+  padding: 2rem;
+  margin-top: 0;
 }
