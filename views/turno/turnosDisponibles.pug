@@ -1,0 +1,26 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    h2.mb-4 Turnos Disponibles
+    
+    .row
+      each turno in turnos
+        .col-md-4.mb-4
+          .card
+            .card-body
+              h5.card-title= moment(turno.fechaturno).format('DD/MM/YYYY')
+              p.card-text
+                strong Hora: 
+                span= turno.inicioturno
+                br
+                strong Médico: 
+                span= turno.medico_nombre + ' ' + turno.medico_apellido
+                br
+                strong Sucursal: 
+                span= turno.sucursal_nombre
+              
+              if user.idperfil === 3
+                a.btn.btn-primary(href=`/turno/confirmar/${turno.turniid}`) Reservar Turno
+              else if user.idperfil === 2
+                a.btn.btn-info(href=`/turno/ver/${turno.turniid}`) Ver Detalles 

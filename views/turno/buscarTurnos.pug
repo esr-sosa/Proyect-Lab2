@@ -1,0 +1,62 @@
+.container-fluid
+  .row
+    .col-md-12
+      .card
+        .card-header
+          h4.text-center Búsqueda de Turnos
+        
+        .card-body
+          form(action="/turno/buscarTurno" method="post")
+            .row
+              .col-md-4
+                .form-group.mb-3
+                  label.form-label Buscar por:
+                  .form-check
+                    input.form-check-input(type="radio" name="radioBtn" id="rbClinica" value="clinica" checked)
+                    label.form-check-label(for="rbClinica") Clínica
+                  .form-check
+                    input.form-check-input(type="radio" name="radioBtn" id="rbEspecialidad" value="especialidad")
+                    label.form-check-label(for="rbEspecialidad") Especialidad
+                  .form-check
+                    input.form-check-input(type="radio" name="radioBtn" id="rbMedico" value="medico")
+                    label.form-check-label(for="rbMedico") Médico
+
+              .col-md-8#opcionesBusqueda
+                // Se cargará dinámicamente según la selección
+
+            .row.mt-3
+              .col-12.text-center
+                button.btn.btn-primary(type="submit")
+                  i.fas.fa-search.me-2
+                  | Buscar Turnos
+
+block scripts
+  script.
+    $(document).ready(function() {
+      $('input[name="radioBtn"]').change(function() {
+        const opcion = $(this).val();
+        cargarOpciones(opcion);
+      });
+
+      function cargarOpciones(opcion) {
+        let html = '';
+        switch(opcion) {
+          case 'clinica':
+            html = `
+              <div class="form-group">
+                <label class="form-label">Seleccione Clínica</label>
+                <select name="clinica" class="form-select" required>
+                  <option value="">Seleccione una clínica</option>
+                  each clinica in clinicas
+                    option(value=clinica.id)= clinica.nombre
+                </select>
+              </div>`;
+            break;
+          // Agregar casos para especialidad y médico
+        }
+        $('#opcionesBusqueda').html(html);
+      }
+
+      // Cargar opciones iniciales
+      cargarOpciones('clinica');
+    }); 

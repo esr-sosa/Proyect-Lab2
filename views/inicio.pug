@@ -25,13 +25,21 @@ block content
                   i.fas.fa-hospital-user
                   span Pacientes
               li
-                a(href="/agenda")
-                  i.fas.fa-calendar-alt
-                  span Agenda
+                a(href="/turno/secretario")
+                  i.fas.fa-calendar-check
+                  span Gestión de Turnos
               li
                 a(href="/medicos/especialidades")
                   i.fas.fa-stethoscope
                   span Especialidades
+              li
+                a(href="/turno/buscarAgenda")
+                  i.fas.fa-calendar-alt
+                  span Reservar Turno
+              li
+                a(href="/turno/misTurnos")
+                  i.fas.fa-history
+                  span Historial de Turnos
             
             h3 Agregar
             ul
@@ -64,6 +72,10 @@ block content
                 a(href="/agenda")
                   i.fas.fa-calendar-alt
                   span Agenda
+              li
+                a(href="/turno/secretario")
+                  i.fas.fa-calendar-check
+                  span Gestión de Turnos
             
             h3 Agregar
             ul
@@ -90,11 +102,11 @@ block content
             h3 Mis Turnos
             ul
               li
-                a(href="/mis-turnos")
+                a(href="/turno/misTurnos")
                   i.fas.fa-calendar-check
                   span Ver Turnos
               li
-                a(href="/solicitar-turno")
+                a(href="/turno/buscarAgenda")
                   i.fas.fa-plus-circle
                   span Solicitar Turno
 

@@ -8,6 +8,9 @@ const medicosRouter = require('./routes/medicos');
 const usuariosRouter = require('./routes/usuarios');
 const adminRouter = require('./routes/admin');
 const secretariaRouter = require('./routes/secretaria');
+const turnoRouter = require('./routes/turno');
+const moment = require('moment');
+moment.locale('es');
 
 const app = express();
 
@@ -48,10 +51,19 @@ app.use('/medicos', medicosRouter);
 app.use('/usuarios', usuariosRouter);
 app.use('/admin', adminRouter);
 app.use('/secretaria', secretariaRouter);
+app.use('/turno', turnoRouter);
 
 // Configuración adicional para servir archivos estáticos
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+// Agregar después de las configuraciones de sesión
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    console.log('Session:', req.session);
+    console.log('Body:', req.body);
+    next();
+});
 
 // Captura el error 404
 app.use((req, res, next) => {
@@ -71,6 +83,8 @@ app.use((err, req, res, next) => {
     error: req.app.get('env') === 'development' ? err : {}
   });
 });
+
+app.locals.moment = moment;
 
 module.exports = app;
 
