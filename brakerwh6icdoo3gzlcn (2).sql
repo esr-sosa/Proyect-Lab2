@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: brakerwh6icdoo3gzlcn-mysql.services.clever-cloud.com:3306
--- Tiempo de generación: 12-11-2024 a las 22:42:45
+-- Tiempo de generación: 12-11-2024 a las 22:51:57
 -- Versión del servidor: 8.0.22-13
 -- Versión de PHP: 8.2.21
 
@@ -39,6 +39,13 @@ CREATE TABLE `agenda` (
   `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `agenda`
+--
+
+INSERT INTO `agenda` (`agendaid`, `persona_id`, `sucursal_id`, `ttipoid`, `nombreagenda`, `duracion`, `medico_id`, `createdAt`, `updateAt`) VALUES
+(2, 20, 2, 3, '', 30, 4, '2024-11-12 22:46:23', '2024-11-12 22:46:23');
+
 -- --------------------------------------------------------
 
 --
@@ -55,6 +62,14 @@ CREATE TABLE `calendar` (
   `createdAt` datetime NOT NULL,
   `updateAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `calendar`
+--
+
+INSERT INTO `calendar` (`calendarid`, `agendaid`, `fechaturno`, `inicioturno`, `finalturno`, `estado`, `createdAt`, `updateAt`) VALUES
+(3, 2, '2024-11-12', '09:00:00', '09:30:00', 1, '2024-11-12 22:49:38', '2024-11-12 22:49:38'),
+(4, 2, '2024-11-12', '10:00:00', '10:30:00', 1, '2024-11-12 22:49:38', '2024-11-12 22:49:38');
 
 -- --------------------------------------------------------
 
@@ -222,7 +237,9 @@ CREATE TABLE `sucursal` (
 --
 
 INSERT INTO `sucursal` (`sucursalid`, `nombre_sucrsal`, `direccion`, `estado`, `telefono`, `email`, `createdAt`, `updateAt`) VALUES
-(1, 'Sucursal Principal', 'Av. Principal 123', 1, NULL, NULL, '2024-11-12 22:09:48', '2024-11-12 22:09:48');
+(1, 'Sucursal Principal', 'Av. Principal 123', 1, NULL, NULL, '2024-11-12 22:09:48', '2024-11-12 22:09:48'),
+(2, 'Clínica Central', 'Av. Principal 123', 1, NULL, NULL, '2024-11-12 22:44:33', '2024-11-12 22:44:33'),
+(3, 'Consultorio Norte', 'Calle 456', 1, NULL, NULL, '2024-11-12 22:44:33', '2024-11-12 22:44:33');
 
 -- --------------------------------------------------------
 
@@ -262,6 +279,13 @@ CREATE TABLE `turno` (
   `estadoturno_id` int NOT NULL,
   `observaciones` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `turno`
+--
+
+INSERT INTO `turno` (`turniid`, `persona_id`, `calendar_id`, `fecha`, `hora`, `estadoturno_id`, `observaciones`) VALUES
+(1, 2, 3, '2024-11-12', '13:50:20', 2, '');
 
 -- --------------------------------------------------------
 
@@ -389,13 +413,13 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT de la tabla `agenda`
 --
 ALTER TABLE `agenda`
-  MODIFY `agendaid` int NOT NULL AUTO_INCREMENT;
+  MODIFY `agendaid` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `calendar`
 --
 ALTER TABLE `calendar`
-  MODIFY `calendarid` int NOT NULL AUTO_INCREMENT;
+  MODIFY `calendarid` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `especialidad`
@@ -431,7 +455,7 @@ ALTER TABLE `persona`
 -- AUTO_INCREMENT de la tabla `sucursal`
 --
 ALTER TABLE `sucursal`
-  MODIFY `sucursalid` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `sucursalid` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `tipoatencion`
@@ -443,7 +467,7 @@ ALTER TABLE `tipoatencion`
 -- AUTO_INCREMENT de la tabla `turno`
 --
 ALTER TABLE `turno`
-  MODIFY `turniid` int NOT NULL AUTO_INCREMENT;
+  MODIFY `turniid` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `user`

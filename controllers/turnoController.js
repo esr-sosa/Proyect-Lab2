@@ -86,6 +86,10 @@ const turnoController = {
                     nombre: turno[0].sucursal_nombre,
                     direccion: turno[0].sucursal_direccion
                 },
+                calendario: {
+                    fecha: turno[0].fechaturno
+                },
+                persona: req.session.user,
                 moment: require('moment')
             });
         } catch (error) {
@@ -405,6 +409,24 @@ const turnoController = {
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error al confirmar el turno' });
+        }
+    },
+
+    cancelarTurno: async (req, res) => {
+        try {
+            const turnoId = req.params.id;
+            
+            // Actualizar el estado del turno a cancelado (estado 3)
+            await db.promise().query(`
+                UPDATE turno 
+                SET estadoturno_id = 3
+                WHERE turniid = ?
+            `, [turnoId]);
+
+            res.status(200).json({ success: true, message: 'Turno cancelado exitosamente' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al cancelar el turno' });
         }
     }
 };

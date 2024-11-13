@@ -18,5 +18,6 @@ router.get('/reservar', auth.isLoggedIn, turnoController.reservarTurno);
 router.get('/misTurnos', auth.isLoggedIn, turnoController.misTurnos);
 router.post('/confirmar/:id', auth.isLoggedIn, turnoController.confirmarTurnoSecretario);
 router.get('/disponibles/:idCalendario', auth.isLoggedIn, turnoController.turnosDisponibles);
+router.post('/cancelar/:id', auth.isLoggedIn, turnoController.cancelarTurno);
 
 module.exports = router; 
