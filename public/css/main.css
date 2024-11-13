@@ -291,3 +291,6 @@
     overflow-y: auto;
     max-height: calc(90vh - 120px);
 }
+.fc-highlight {
+  background-color: rgba(40, 167, 69, 0.2) !important;
+}

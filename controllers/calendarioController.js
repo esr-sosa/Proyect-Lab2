@@ -65,15 +65,11 @@ const calendarioController = {
     },
 
     crearHorarios: async (req, res) => {
-        let connection;
         try {
-            connection = await db.promise().getConnection();
-            await connection.beginTransaction();
-            
-            const { agendaId, fechaInicio, fechaFin, franjas } = req.body;
-            
+            const { agendaId, fechaInicio, fechaFin, franjas, diasSemana } = req.body;
+
             // Verificar si la agenda existe
-            const [agenda] = await connection.query(`
+            const [agenda] = await db.promise().query(`
                 SELECT a.*, m.especialidadId, a.duracion, p.nombre, p.apellido,
                        s.nombre_sucrsal, e.nombre_esp
                 FROM agenda a
@@ -85,7 +81,6 @@ const calendarioController = {
             `, [agendaId]);
 
             if (!agenda.length) {
-                await connection.rollback();
                 return res.status(404).json({ 
                     success: false, 
                     message: 'Agenda no encontrada' 
@@ -98,6 +93,18 @@ const calendarioController = {
             let horariosCreados = 0;
 
             while (fechaActual.isSameOrBefore(fechaLimite)) {
+                // Obtener el día actual (0-6, donde 0 es domingo)
+                const diaActual = fechaActual.day();
+                
+                // Convertir el día actual al formato que usamos (lunes=0, domingo=6)
+                const diaAjustado = diaActual === 0 ? 6 : diaActual - 1;
+                
+                // Si el día actual no está en los días seleccionados, saltar al siguiente día
+                if (!diasSemana.includes(diaAjustado)) {
+                    fechaActual.add(1, 'days');
+                    continue;
+                }
+
                 for (const franja of franjas) {
                     let horaActual = moment(franja.inicio, 'HH:mm');
                     const horaFinal = moment(franja.fin, 'HH:mm');
@@ -105,7 +112,7 @@ const calendarioController = {
                     while (horaActual.isBefore(horaFinal)) {
                         const finalTurno = moment(horaActual).add(duracionTurno, 'minutes');
                         
-                        await connection.query(`
+                        await db.promise().query(`
                             INSERT INTO calendar 
                             (agendaid, fechaturno, inicioturno, finalturno, estado, createdAt, updateAt)
                             VALUES (?, ?, ?, ?, 1, NOW(), NOW())
@@ -123,22 +130,19 @@ const calendarioController = {
                 fechaActual.add(1, 'days');
             }
 
-            await connection.commit();
-            res.json({ 
-                success: true, 
-                message: `Se crearon ${horariosCreados} horarios exitosamente` 
+            res.json({
+                success: true,
+                message: 'Horarios creados exitosamente',
+                horariosCreados,
+                agenda: agenda[0]
             });
 
         } catch (error) {
-            if (connection) await connection.rollback();
             console.error('Error en crearHorarios:', error);
-            res.status(500).json({ 
-                success: false, 
-                message: 'Error al crear los horarios',
-                error: error.message 
+            res.status(500).json({
+                success: false,
+                message: 'Error al crear los horarios'
             });
-        } finally {
-            if (connection) connection.release();
         }
     },
 

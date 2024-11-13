@@ -2,51 +2,95 @@ extends ../layout
 
 block content
   .container-fluid
-    .row.h-100
-      .col-12
-        .card
-          .card-header.d-flex.justify-content-between.align-items-center
-            h4.mb-0 Configurar Horarios - #{agenda.nombreagenda}
-            button.btn.btn-secondary(onclick='history.back()')
-              i.fas.fa-arrow-left.me-1
-              | Volver
-          
-          .card-body.pt-0
+    .row
+      .col-md-8.mb-4
+        .card.shadow-sm
+          .card-header.bg-white.py-3
+            h4.mb-0 
+              | Calendario - #{agenda.nombreagenda}
+              small.text-muted.ms-2 (Duración: #{agenda.duracion} minutos)
+          .card-body
             #calendario
 
-        #modalHorarios.modal.fade
-          .modal-dialog.modal-lg
-            .modal-content
-              .modal-header
-                h5.modal-title Configurar Horarios del Día
-                button.btn-close(data-bs-dismiss="modal")
-              .modal-body
-                form#formHorarios(data-agenda-id=agenda.agendaid)
-                  input#fechaSeleccionada(type="hidden")
-                  #franjasHorarias
-                    .franja.mb-3
-                      h5.mb-3 Franja Horaria 1
-                      .row
-                        .col-md-5
-                          label Hora Inicio
-                          input.hora-inicio.form-control(type="time" required)
-                        .col-md-5
-                          label Hora Fin
-                          input.hora-fin.form-control(type="time" required)
-                        .col-md-2.d-flex.align-items-end
-                          button.btn.btn-danger.eliminar-franja(type="button")
-                            i.fas.fa-trash
+      .col-md-4.mb-4
+        .card.shadow-sm
+          .card-header.bg-white.py-3.d-flex.justify-content-between.align-items-center
+            h4.mb-0 Configurar Horarios
+            button.btn.btn-secondary.btn-sm(onclick='history.back()')
+              i.fas.fa-arrow-left.me-1
+              | Volver
+          .card-body
+            form#formHorarios(data-agenda-id=agenda.agendaid)
+              .form-check.form-switch.mb-4
+                input#rangoFechas.form-check-input(type="checkbox" role="switch")
+                label.form-check-label(for="rangoFechas") Configurar rango de fechas
 
+              #fechaUnica.d-block
+                input#fechaSeleccionada(type="hidden")
+                p.text-muted.small.mb-3 Fecha seleccionada: 
+                  span#fechaSeleccionadaTexto.fw-bold
+                
+                #franjasHorariasUnico
+                  .franja.mb-3
+                    h5.mb-3 Franja Horaria 1
+                    .row.g-2
+                      .col-5
+                        label.form-label Hora Inicio
+                        input.hora-inicio.form-control(type="time" required)
+                      .col-5
+                        label.form-label Hora Fin
+                        input.hora-fin.form-control(type="time" required)
+                      .col-2.d-flex.align-items-end
+                        button.btn.btn-danger.btn-sm.eliminar-franja(type="button")
+                          i.fas.fa-trash
+                  
                   .text-center.mt-3
-                    button#agregarFranja.btn.btn-secondary(type="button")
+                    button#agregarFranjaUnico.btn.btn-secondary.btn-sm(type="button")
                       i.fas.fa-plus.me-1
-                      | Agregar Franja Horaria
+                      | Agregar Franja
 
-              .modal-footer
-                button.btn.btn-secondary(data-bs-dismiss="modal") Cancelar
-                button#guardarHorarios.btn.btn-primary(type="button") Guardar
+              #rangoFechasContainer.d-none
+                .row.g-3.mb-4
+                  .col-md-6
+                    label.form-label Fecha Inicio
+                    input#fechaInicio.form-control(type="date")
+                  .col-md-6
+                    label.form-label Fecha Fin
+                    input#fechaFin.form-control(type="date")
+                
+                label.form-label.mb-3 Días de atención
+                .d-flex.flex-wrap.gap-3.mb-4.dias-atencion
+                  each dia, index in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                    .form-check
+                      input.form-check-input(type="checkbox" name="dias" value=index id=`dia${index}`)
+                      label.form-check-label(for=`dia${index}`)= dia
+                
+                #franjasHorariosRango
+                  .franja.mb-3
+                    h5.mb-3 Franja Horaria 1
+                    .row.g-2
+                      .col-5
+                        label.form-label Hora Inicio
+                        input.hora-inicio.form-control(type="time" required)
+                      .col-5
+                        label.form-label Hora Fin
+                        input.hora-fin.form-control(type="time" required)
+                      .col-2.d-flex.align-items-end
+                        button.btn.btn-danger.btn-sm.eliminar-franja(type="button")
+                          i.fas.fa-trash
+                  
+                  .text-center.mt-3
+                    button#agregarFranjaRango.btn.btn-secondary.btn-sm(type="button")
+                      i.fas.fa-plus.me-1
+                      | Agregar Franja
+
+              .text-center.mt-4
+                button#guardarHorarios.btn.btn-primary(type="button")
+                  i.fas.fa-save.me-1
+                  | Guardar
 
 block scripts
   script(src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.js")
   script(src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/locales-all.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js")
   script(src="/js/agenda/gestionHorarios.js") 
