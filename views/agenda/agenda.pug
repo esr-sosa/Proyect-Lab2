@@ -1,0 +1,124 @@
+extends layout
+
+block content
+  header.navbar.navbar-dark.sticky-top.bg-dark.flex-md-nowrap.p-0.shadow
+    a.navbar-brand.col-md-3.col-lg-2.me-0.px-3(href='/') Cuyana Medical
+    button.navbar-toggler.position-absolute.d-md-none.collapsed(type='button' data-bs-toggle='collapse' data-bs-target='#sidebarMenu' aria-controls='sidebarMenu' aria-expanded='false' aria-label='Toggle navigation')
+      span.navbar-toggler-icon
+    
+    .navbar-nav
+      .nav-item.text-nowrap
+        if(user && persona)
+          a.nav-link.pl-5 Bienvenido #{persona.nombre} #{persona.apellido}. Usuario: #{user.usuario}
+        else
+          a.nav-link.pl-5 Bienvenido Usuario: #{user.usuario}
+
+    .navbar-nav      
+      .nav-item.text-nowrap
+        a.nav-link.px-3(href='/logout') Cerrar sesion
+
+  .container-fluid
+    .row
+      nav#sidebarMenu.col-md-3.col-lg-2.d-md-block.bg-light.sidebar.collapse
+        .position-sticky.pt-3
+          ul.nav.flex-column
+            li.nav-item
+              a.nav-link(aria-current='page' href='/clinica/')
+                | Clinicas
+            li.nav-item
+              a.nav-link(href='/medico/')
+                | Medicos
+            // Otros elementos de la barra lateral
+      
+      main.col-md-9.ms-sm-auto.col-lg-10.px-md-4
+        .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+          h1.h2 Agregar dia a la agenda
+          .btn-toolbar.mb-2.mb-md-0
+            .btn-group.me-2
+              a.btn.btn-sm.btn-outline-secondary(type='button' href='/agenda/') Volver
+        
+        .container
+          .form-group
+            .row
+              .card.mb-3
+                .card-body
+                  #calendar
+
+// Incluir scripts necesarios
+script(src="/js/calendar_main.js")
+script(src="/js/es.js")
+
+script.
+  let calendar;
+  let url;
+  $(document).ready(function() {
+      let today = new Date();
+      let dd = today.getDate();
+      let mm = today.getMonth() + 1;
+      let yyyy = today.getFullYear();
+      if (dd < 10) { dd = '0' + dd; }
+      if (mm < 10) { mm = '0' + mm; }
+      today = yyyy + '-' + mm + '-' + dd;
+      const fechaInput = document.getElementById("fecha");
+      if (fechaInput) {
+        fechaInput.setAttribute("min", today);
+      }
+      url = window.location.href.split("/")[5];
+      $.ajax({
+          url: `http://localhost:3000/agenda/agenda/${url}`,
+          type: 'GET',
+          success: function(respuesta) {
+              const evts = [];
+              respuesta.forEach(a => {
+                  const e = {
+                      id: a.id,
+                      title: prettyTime(a.hora_inicio) + " - " + prettyTime(a.hora_fin),
+                      url: `/turno/calendario/${a.id}`,
+                      start: a.fecha
+                  };
+                  evts.push(e);
+              });
+              const calendarEl = document.getElementById('calendar');
+              calendar = new FullCalendar.Calendar(calendarEl, {
+                  locale: 'es',
+                  initialView: 'dayGridMonth',
+                  headerToolbar: { center: 'addEventButton' },
+                  customButtons: {
+                      addEventButton: {
+                          text: 'AGREGAR DIA',
+                          click: function() {
+                              $("#myModal").modal('show');
+                          }
+                      }
+                  },
+                  selectable: true,
+                  events: evts
+              });
+              calendar.render();
+          },
+          error: function() {
+              console.error("No es posible completar la operación");
+          }
+      });
+  });
+
+  function agregarDia() {
+      $.ajax({
+          type: "POST",
+          url: "http://localhost:3000/agenda/agregarDia",
+          data: {
+              agendaid: url,
+              fecha: $("#fecha").val(),
+              hora_inicio: $("#hora_inicio").val(),
+              hora_fin: $("#hora_fin").val()
+          },
+          success: function(datos) {
+              console.log(datos);
+          }
+      });
+      location.reload();
+  }
+
+  function prettyTime(time) {
+      return time.split(":")[0] + ":" + time.split(":")[1];
+  }

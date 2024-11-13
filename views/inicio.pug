@@ -20,33 +20,19 @@ block content
                 a(href="/usuarios")
                   i.fas.fa-users
                   span Usuarios
-              li
-                a(href="/pacientes")
-                  i.fas.fa-hospital-user
-                  span Pacientes
-              li
-                a(href="/turno/secretario")
-                  i.fas.fa-calendar-check
-                  span Gestión de Turnos
+            
               li
                 a(href="/medicos/especialidades")
                   i.fas.fa-stethoscope
                   span Especialidades
-              li
-                a(href="/turno/buscarAgenda")
-                  i.fas.fa-calendar-alt
-                  span Reservar Turno
-              li
-                a(href="/turno/misTurnos")
-                  i.fas.fa-history
-                  span Historial de Turnos
+           
             
             h3 Agregar
             ul
               li
-                a(href="/paciente/agregar")
-                  i.fas.fa-user-plus
-                  span Nuevo Paciente
+                a(href="/agenda/agenda")
+                  i.fas.fa-calendar-alt
+                  span agregar Agenda
               li
                 a(href="/medicos")
                   i.fas.fa-user-md
@@ -68,10 +54,11 @@ block content
                 a(href="/pacientes")
                   i.fas.fa-hospital-user
                   span Pacientes
-              li
-                a(href="/agenda")
-                  i.fas.fa-calendar-alt
-                  span Agenda
+             
+                li
+                a(href="/pacientes")
+                  i.fas.fa-hospital-user
+                  span Pacientes
               li
                 a(href="/turno/secretario")
                   i.fas.fa-calendar-check
@@ -83,6 +70,14 @@ block content
                 a(href="/paciente/agregar")
                   i.fas.fa-user-plus
                   span Nuevo Paciente
+                     li
+                a(href="/turno/buscarAgenda")
+                  i.fas.fa-calendar-alt
+                  span Reservar Turno
+              li
+                a(href="/turno/misTurnos")
+                  i.fas.fa-history
+                  span Historial de Turnos
 
         if user.isMedico
           div.menu-section
