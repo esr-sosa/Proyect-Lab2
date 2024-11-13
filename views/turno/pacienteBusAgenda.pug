@@ -15,6 +15,6 @@ block content
                 select#sucursal.form-control(name='sucursal' required)
                   option(value='') Seleccione una sucursal
                   each sucursal in sucursales
-                    option(value=sucursal.sucursalid)= sucursal.nombre
+                    option(value=sucursal.sucursalid)= sucursal.nombre_sucrsal
 
               button.btn.btn-primary.mt-3(type='submit') Buscar Turnos 

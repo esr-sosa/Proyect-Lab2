@@ -14,25 +14,55 @@ block content
       nav.menu
         if user.isAdmin
           div.menu-section
-            h3 Gestión
+            h3 Gestión General
             ul
               li
                 a(href="/usuarios")
                   i.fas.fa-users
                   span Usuarios
-            
+              li
+                a(href="/pacientes")
+                  i.fas.fa-hospital-user
+                  span Pacientes
               li
                 a(href="/medicos/especialidades")
                   i.fas.fa-stethoscope
                   span Especialidades
-           
+
+          div.menu-section
+            h3 Gestión de Turnos
+            ul
+              li
+                a(href="/turno/secretario")
+                  i.fas.fa-calendar-check
+                  span Turnos Pendientes
+              li
+                a(href="/turno/buscarAgenda")
+                  i.fas.fa-calendar-plus
+                  span Nuevo Turno
+              li
+                a(href="/agenda/gestion")
+                  i.fas.fa-calendar-alt
+                  span Gestión de Agenda
+              li
+                a(href="/agenda/horarios")
+                  i.fas.fa-clock
+                  span Configurar Horarios
+              li
+                a(href="/turno/historial")
+                  i.fas.fa-history
+                  span Historial
+              li
+                a(href="/turno/cancelados")
+                  i.fas.fa-calendar-times
+                  span Turnos Cancelados
             
             h3 Agregar
             ul
               li
-                a(href="/agenda/agenda")
-                  i.fas.fa-calendar-alt
-                  span agregar Agenda
+                a(href="/paciente/agregar")
+                  i.fas.fa-user-plus
+                  span Nuevo Paciente
               li
                 a(href="/medicos")
                   i.fas.fa-user-md
@@ -48,36 +78,40 @@ block content
 
         if user.isSecretaria
           div.menu-section
-            h3 Gestión
+            h3 Gestión de Turnos
             ul
-              li
-                a(href="/pacientes")
-                  i.fas.fa-hospital-user
-                  span Pacientes
-             
-                li
-                a(href="/pacientes")
-                  i.fas.fa-hospital-user
-                  span Pacientes
               li
                 a(href="/turno/secretario")
                   i.fas.fa-calendar-check
-                  span Gestión de Turnos
-            
-            h3 Agregar
+                  span Turnos Pendientes
+              li
+                a(href="/turno/buscarAgenda")
+                  i.fas.fa-calendar-plus
+                  span Nuevo Turno
+              li
+                a(href="/agenda/gestion")
+                  i.fas.fa-calendar-alt
+                  span Gestión de Agenda
+              li
+                a(href="/agenda/horarios")
+                  i.fas.fa-clock
+                  span Configurar Horarios
+              li
+                a(href="/turno/historial")
+                  i.fas.fa-history
+                  span Historial
+
+          div.menu-section
+            h3 Pacientes
             ul
+              li
+                a(href="/pacientes")
+                  i.fas.fa-hospital-user
+                  span Lista de Pacientes
               li
                 a(href="/paciente/agregar")
                   i.fas.fa-user-plus
                   span Nuevo Paciente
-                     li
-                a(href="/turno/buscarAgenda")
-                  i.fas.fa-calendar-alt
-                  span Reservar Turno
-              li
-                a(href="/turno/misTurnos")
-                  i.fas.fa-history
-                  span Historial de Turnos
 
         if user.isMedico
           div.menu-section
@@ -88,9 +122,17 @@ block content
                   i.fas.fa-calendar-alt
                   span Mi Agenda
               li
+                a(href="/turno/dia")
+                  i.fas.fa-calendar-day
+                  span Turnos del Día
+              li
                 a(href="/mis-pacientes")
                   i.fas.fa-users
                   span Mis Pacientes
+              li
+                a(href="/turno/historial")
+                  i.fas.fa-history
+                  span Historial
         
         if user.isPaciente
           div.menu-section
@@ -99,18 +141,15 @@ block content
               li
                 a(href="/turno/misTurnos")
                   i.fas.fa-calendar-check
-                  span Ver Turnos
+                  span Turnos Activos
               li
                 a(href="/turno/buscarAgenda")
-                  i.fas.fa-plus-circle
+                  i.fas.fa-calendar-plus
                   span Solicitar Turno
-
-        div.menu-section.bottom
-          ul
-            li
-              a(href="/logout")
-                i.fas.fa-sign-out-alt
-                span Cerrar Sesión
+              li
+                a(href="/turno/historial")
+                  i.fas.fa-history
+                  span Historial
 
         div.menu-section
           h3 Mi Cuenta
@@ -119,6 +158,10 @@ block content
               a(href="/mi-perfil")
                 i.fas.fa-user-edit
                 span Mi Perfil
+            li
+              a(href="/logout")
+                i.fas.fa-sign-out-alt
+                span Cerrar Sesión
 
     div.main-content
       div.welcome-banner

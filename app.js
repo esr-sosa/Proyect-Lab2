@@ -9,6 +9,7 @@ const usuariosRouter = require('./routes/usuarios');
 const adminRouter = require('./routes/admin');
 const secretariaRouter = require('./routes/secretaria');
 const turnoRouter = require('./routes/turno');
+const apiRoutes = require('./routes/apiRoutes');
 const moment = require('moment');
 moment.locale('es');
 
@@ -52,6 +53,7 @@ app.use('/usuarios', usuariosRouter);
 app.use('/admin', adminRouter);
 app.use('/secretaria', secretariaRouter);
 app.use('/turno', turnoRouter);
+app.use('/api', apiRoutes);
 
 // Configuración adicional para servir archivos estáticos
 app.use('/images', express.static(path.join(__dirname, 'public/images')));

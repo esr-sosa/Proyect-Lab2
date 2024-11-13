@@ -1,0 +1,52 @@
+extends ../layout
+
+block content
+  .container-fluid
+    .row.h-100
+      .col-12
+        .card
+          .card-header.d-flex.justify-content-between.align-items-center
+            h4.mb-0 Configurar Horarios - #{agenda.nombreagenda}
+            button.btn.btn-secondary(onclick='history.back()')
+              i.fas.fa-arrow-left.me-1
+              | Volver
+          
+          .card-body.pt-0
+            #calendario
+
+        #modalHorarios.modal.fade
+          .modal-dialog.modal-lg
+            .modal-content
+              .modal-header
+                h5.modal-title Configurar Horarios del Día
+                button.btn-close(data-bs-dismiss="modal")
+              .modal-body
+                form#formHorarios(data-agenda-id=agenda.agendaid)
+                  input#fechaSeleccionada(type="hidden")
+                  #franjasHorarias
+                    .franja.mb-3
+                      h5.mb-3 Franja Horaria 1
+                      .row
+                        .col-md-5
+                          label Hora Inicio
+                          input.hora-inicio.form-control(type="time" required)
+                        .col-md-5
+                          label Hora Fin
+                          input.hora-fin.form-control(type="time" required)
+                        .col-md-2.d-flex.align-items-end
+                          button.btn.btn-danger.eliminar-franja(type="button")
+                            i.fas.fa-trash
+
+                  .text-center.mt-3
+                    button#agregarFranja.btn.btn-secondary(type="button")
+                      i.fas.fa-plus.me-1
+                      | Agregar Franja Horaria
+
+              .modal-footer
+                button.btn.btn-secondary(data-bs-dismiss="modal") Cancelar
+                button#guardarHorarios.btn.btn-primary(type="button") Guardar
+
+block scripts
+  script(src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/locales-all.min.js")
+  script(src="/js/agenda/gestionHorarios.js") 

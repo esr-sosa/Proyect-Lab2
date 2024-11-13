@@ -1,0 +1,47 @@
+extends ../layout
+
+block content
+  .container-fluid
+    .card
+      .card-header.d-flex.justify-content-between.align-items-center
+        h4.mb-0 Configurar Horarios - #{agenda.nombreagenda}
+        button.btn.btn-secondary(onclick='history.back()')
+          i.fas.fa-arrow-left.me-1
+          | Volver
+      
+      .card-body
+        .row.mb-4
+          .col-md-12
+            #calendario
+
+        #modalHorarios.modal.fade(tabindex='-1')
+          .modal-dialog
+            .modal-content
+              .modal-header
+                h5.modal-title Configurar Horarios
+                button.btn-close(data-bs-dismiss='modal')
+              .modal-body
+                form#formHorarios(data-agenda-id=agenda.agendaid)
+                  input#fechaSeleccionada(type='hidden')
+                  #franjasHorarias
+                    .franja.mb-3
+                      h5.mb-3 Franja Horaria 1
+                      .row
+                        .col-md-5
+                          label Hora Inicio
+                          input.hora-inicio.form-control(type='time' required)
+                        .col-md-5
+                          label Hora Fin
+                          input.hora-fin.form-control(type='time' required)
+                  
+                  button#agregarFranja.btn.btn-secondary.mt-2(type='button')
+                    i.fas.fa-plus.me-1
+                    | Agregar Franja
+              .modal-footer
+                button.btn.btn-secondary(data-bs-dismiss='modal') Cancelar
+                button.btn.btn-primary#guardarHorarios(type='button') Guardar
+
+block scripts
+  script(src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.js')
+  script(src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/locales-all.min.js')
+  script(src='/js/agenda/calendarioHorarios.js') 

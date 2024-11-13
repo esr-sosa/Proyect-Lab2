@@ -1,0 +1,49 @@
+extends ../layout
+
+block content
+  .container-fluid
+    .card
+      .card-header
+        h4.mb-0 Crear Nueva Agenda
+      
+      .card-body
+        form(action="/agenda/crear" method="POST")
+          .row
+            .col-md-6
+              .form-group.mb-3
+                label(for="medico_id") Médico
+                select#medico_id.form-control(name="medico_id" required)
+                  option(value="") Seleccione un médico
+                  each medico in medicos
+                    option(value=medico.medicoid)= `${medico.nombre} ${medico.apellido} - ${medico.especialidad}`
+            
+            .col-md-6
+              .form-group.mb-3
+                label(for="sucursal_id") Clínica
+                select#sucursal_id.form-control(name="sucursal_id" required)
+                  option(value="") Seleccione una clínica
+                  each sucursal in sucursales
+                    option(value=sucursal.sucursalid)= sucursal.nombre_sucrsal
+
+          .row
+            .col-md-6
+              .form-group.mb-3
+                label(for="duracion") Duración de consulta (minutos)
+                select#duracion.form-control(name="duracion" required)
+                  option(value="15") 15 minutos
+                  option(value="30") 30 minutos
+                  option(value="45") 45 minutos
+                  option(value="60") 1 hora
+
+          .row
+            .col-md-6
+              .form-group.mb-3
+                label(for="ttipoid") Tipo de Atención
+                select#ttipoid.form-control(name="ttipoid" required)
+                  option(value="") Seleccione tipo de atención
+                  each tipo in tiposAtencion
+                    option(value=tipo.atencionid)= `${tipo.tipo} - ${tipo.descripcion}`
+
+          .text-end.mt-3
+            button.btn.btn-secondary.me-2(type="button" onclick="history.back()") Cancelar
+            button.btn.btn-primary(type="submit") Crear Agenda 

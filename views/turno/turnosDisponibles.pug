@@ -1,26 +1,37 @@
 extends ../layout
 
 block content
-  .container.mt-4
-    h2.mb-4 Turnos Disponibles
-    
+  .container-fluid
     .row
-      each turno in turnos
-        .col-md-4.mb-4
-          .card
-            .card-body
-              h5.card-title= moment(turno.fechaturno).format('DD/MM/YYYY')
-              p.card-text
-                strong Hora: 
-                span= turno.inicioturno
-                br
-                strong Médico: 
-                span= turno.medico_nombre + ' ' + turno.medico_apellido
-                br
-                strong Sucursal: 
-                span= turno.sucursal_nombre
-              
-              if user.idperfil === 3
-                a.btn.btn-primary(href=`/turno/confirmar/${turno.turniid}`) Reservar Turno
-              else if user.idperfil === 2
-                a.btn.btn-info(href=`/turno/ver/${turno.turniid}`) Ver Detalles 
+      .col-12
+        .card
+          .card-header
+            h4.mb-0 Turnos Disponibles
+          .card-body
+            .table-responsive
+              table.table.table-hover
+                thead
+                  tr
+                    th Fecha
+                    th Hora
+                    th Médico
+                    th Sucursal
+                    th Estado
+                    th Acciones
+                tbody
+                  each turno in turnos
+                    tr
+                      td= moment(turno.fechaturno).format('DD/MM/YYYY')
+                      td= moment(turno.inicioturno, 'HH:mm:ss').format('HH:mm')
+                      td= `${turno.medico_nombre} ${turno.medico_apellido}`
+                      td= turno.sucursal_nombre
+                      td= turno.estado_tipo
+                      td
+                        if user.idperfil === 1
+                          a.btn.btn-primary.btn-sm(href=`/turno/ver?id=${turno.turniid}`)
+                            i.fas.fa-eye.me-1
+                            | Ver
+                        else
+                          a.btn.btn-success.btn-sm(href=`/turno/reservar?turnoId=${turno.turniid}&personaId=${user.personaid}`)
+                            i.fas.fa-calendar-check.me-1
+                            | Reservar

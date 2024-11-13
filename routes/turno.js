@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const turnoController = require('../controllers/turnoController');
+const calendarioController = require('../controllers/calendarioController');
 const auth = require('../middleware/auth');
 
 // Rutas unificadas para gestión de turnos
@@ -19,5 +20,7 @@ router.get('/misTurnos', auth.isLoggedIn, turnoController.misTurnos);
 router.post('/confirmar/:id', auth.isLoggedIn, turnoController.confirmarTurnoSecretario);
 router.get('/disponibles/:idCalendario', auth.isLoggedIn, turnoController.turnosDisponibles);
 router.post('/cancelar/:id', auth.isLoggedIn, turnoController.cancelarTurno);
+router.get('/buscarTurnos', auth.isLoggedIn, auth.checkRole([1, 2, 3]), turnoController.buscarTurnos);
+router.get('/api/turnos-disponibles', auth.isLoggedIn, calendarioController.obtenerTurnosDisponibles);
 
 module.exports = router; 

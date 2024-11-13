@@ -4,32 +4,26 @@ const moment = require('moment');
 const agendaController = {
     listarAgenda: async (req, res) => {
         try {
-            if (req.session.user.idperfil === 1) { // admin
-                const [agendas] = await db.promise().query(`
-                    SELECT a.*, p.nombre as persona_nombre, p.apellido,
-                           m.medicoid, s.nombre_sucrsal as sucursal_nombre,
-                           ta.tipo as tipo_atencion
-                    FROM agenda a 
-                    JOIN persona p ON a.persona_id = p.personaid
-                    JOIN medicos m ON a.medico_id = m.medicoid
-                    JOIN sucursal s ON a.sucursal_id = s.sucursalid
-                    JOIN tipoatencion ta ON a.ttipoid = ta.atencionid
-                    ORDER BY a.createdAt DESC
-                `);
+            const [agendas] = await db.promise().query(`
+                SELECT a.*, p.nombre, p.apellido,
+                       s.nombre_sucrsal,
+                       e.nombre_esp,
+                       t.tipo as tipo_atencion,
+                       t.descripcion as descripcion_atencion
+                FROM agenda a
+                JOIN medicos m ON a.medico_id = m.medicoid
+                JOIN persona p ON m.personaid = p.personaid
+                JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                JOIN especialidad e ON m.especialidadid = e.especialidadId
+                JOIN tipoatencion t ON a.ttipoid = t.atencionid
+                ORDER BY p.apellido, p.nombre
+            `);
 
-                res.render('agenda/listaAgenda', {
-                    title: 'Lista de Agendas',
-                    agendas,
-                    user: req.session.user
-                });
-            } else if (req.session.user.idperfil === 4) { // paciente
-                res.render('agenda/buscarAgenda', {
-                    title: 'Buscar Agenda',
-                    user: req.session.user
-                });
-            } else {
-                res.redirect('/');
-            }
+            res.render('agenda/agenda', {
+                title: 'Gestión de Agendas',
+                agendas,
+                user: req.session.user
+            });
         } catch (error) {
             console.error(error);
             res.status(500).send('Error al cargar las agendas');
@@ -38,10 +32,6 @@ const agendaController = {
 
     crearAgenda: async (req, res) => {
         try {
-            if (req.session.user.idperfil !== 1) {
-                return res.redirect('/');
-            }
-
             const [medicos] = await db.promise().query(`
                 SELECT m.*, p.nombre, p.apellido 
                 FROM medicos m 
@@ -50,7 +40,8 @@ const agendaController = {
             `);
 
             const [sucursales] = await db.promise().query('SELECT sucursalid, nombre_sucrsal FROM sucursal WHERE estado = 1');
-            const [tiposAtencion] = await db.promise().query('SELECT * FROM tipoatencion');
+            
+            const [tiposAtencion] = await db.promise().query('SELECT atencionid, tipo, descripcion FROM tipoatencion');
 
             res.render('agenda/formAgenda', {
                 title: 'Crear Agenda',
@@ -66,19 +57,101 @@ const agendaController = {
     },
 
     insertarAgenda: async (req, res) => {
-        const { persona_id, sucursal_id, medico_id, nombreagenda, duracion, ttipoid } = req.body;
-        
         try {
-            await db.promise().query(`
-                INSERT INTO agenda 
-                (persona_id, sucursal_id, medico_id, nombreagenda, duracion, ttipoid, createdAt, updateAt)
-                VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
-            `, [persona_id, sucursal_id, medico_id, nombreagenda, duracion, ttipoid]);
+            const { medico_id, sucursal_id, duracion, ttipoid } = req.body;
             
-            res.redirect('/agenda');
+            // Obtener el personaid del médico
+            const [medico] = await db.promise().query(`
+                SELECT personaid FROM medicos WHERE medicoid = ?
+            `, [medico_id]);
+
+            if (!medico.length) {
+                return res.status(404).send('Médico no encontrado');
+            }
+
+            // Generar nombre de agenda automáticamente
+            const [doctor] = await db.promise().query(`
+                SELECT CONCAT(nombre, ' ', apellido) as nombre_completo 
+                FROM persona 
+                WHERE personaid = ?
+            `, [medico[0].personaid]);
+
+            const nombreagenda = `Agenda ${doctor[0].nombre_completo}`;
+
+            const [result] = await db.promise().query(`
+                INSERT INTO agenda 
+                (persona_id, sucursal_id, ttipoid, nombreagenda, duracion, medico_id, createdAt, updateAt)
+                VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+            `, [medico[0].personaid, sucursal_id, ttipoid, nombreagenda, duracion, medico_id]);
+            
+            // Redirigir al calendario con el ID de la agenda creada
+            res.redirect(`/agenda/horarios/${result.insertId}`);
         } catch (error) {
             console.error(error);
             res.status(500).send('Error al crear la agenda');
+        }
+    },
+
+    gestionHorarios: async (req, res) => {
+        try {
+            const agendaId = req.params.id;
+            const [agenda] = await db.promise().query(`
+                SELECT a.*, p.nombre, p.apellido,
+                       s.nombre_sucrsal,
+                       e.nombre_esp
+                FROM agenda a
+                JOIN medicos m ON a.medico_id = m.medicoid
+                JOIN persona p ON m.personaid = p.personaid
+                JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                JOIN especialidad e ON m.especialidadid = e.especialidadId
+                WHERE a.agendaid = ?
+            `, [agendaId]);
+
+            if (!agenda.length) {
+                return res.status(404).send('Agenda no encontrada');
+            }
+
+            res.render('agenda/gestionHorarios', {
+                title: 'Gestión de Horarios',
+                agenda: agenda[0],
+                user: req.session.user
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Error al cargar la gestión de horarios');
+        }
+    },
+
+    cambiarEstadoAgenda: async (req, res) => {
+        try {
+            const { agendaId, estado } = req.body;
+            
+            // Actualizar estado de la agenda
+            await db.promise().query(`
+                UPDATE agenda 
+                SET estado = ?, 
+                    updateAt = NOW() 
+                WHERE agendaid = ?
+            `, [estado, agendaId]);
+
+            // Actualizar estado de los horarios asociados
+            await db.promise().query(`
+                UPDATE calendar 
+                SET estado = ?,
+                    updateAt = NOW() 
+                WHERE agendaid = ?
+            `, [estado, agendaId]);
+
+            res.json({ 
+                success: true, 
+                message: `Agenda ${estado === 1 ? 'activada' : 'desactivada'} exitosamente` 
+            });
+        } catch (error) {
+            console.error('Error en cambiarEstadoAgenda:', error);
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error al cambiar el estado de la agenda' 
+            });
         }
     }
 };
