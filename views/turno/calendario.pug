@@ -1,45 +1,30 @@
 extends ../layout
 
 block content
-  .container-fluid
-    .row
-      .col-md-12
-        .card
-          .card-header
-            h4.mb-0 Calendario de Turnos
-            
-          .card-body
-            .row
-              .col-md-3
-                .form-group
-                  label(for='filtroSucursal') Sucursal
-                  select#filtroSucursal.form-control
-                    option(value='') Todas las sucursales
-                    each sucursal in sucursales
-                      option(value=sucursal.sucursalid)= sucursal.nombre_sucrsal
-                      
-              .col-md-3
-                .form-group
-                  label(for='filtroEspecialidad') Especialidad
-                  select#filtroEspecialidad.form-control
-                    option(value='') Todas las especialidades
-                    each esp in especialidades
-                      option(value=esp.especialidadId)= esp.nombre_esp
-                      
-              .col-md-3
-                .form-group
-                  label(for='filtroMedico') Médico
-                  select#filtroMedico.form-control
-                    option(value='') Todos los médicos
-                    
-              .col-md-3
-                .form-group
-                  label(for='fecha') Fecha
-                  input#fecha.form-control(type='date')
-                  
-            #calendario
+    .container-fluid
+        .row
+            .col-md-8.offset-md-2
+                .card
+                    .card-header
+                        h4.mb-0 Seleccionar Fecha del Turno
+                    .card-body
+                        .row.mb-4
+                            .col-md-6
+                                h5 Médico
+                                p #{medico.nombre} #{medico.apellido}
+                            .col-md-6
+                                h5 Especialidad
+                                p #{medico.nombre_esp}
+                        if fechasDisponibles && fechasDisponibles.length > 0
+                            #calendario
+                            #contenedorHorarios.mt-4
+                        else
+                            .alert.alert-info No hay fechas disponibles para este médico
 
 block scripts
-  script(src='/js/fullcalendar/main.min.js')
-  script(src='/js/turnos/calendario.js')
-  script(src='/js/turnos/busquedaCalendario.js') 
+    script(src='/js/turnos/busquedaCalendario.js')
+    script.
+        const medicoId = '#{medicoId}';
+        const sucursalId = '#{sucursal}';
+        const especialidadId = '#{especialidad}';
+        const fechasDisponibles = !{JSON.stringify(fechasDisponibles || [])};

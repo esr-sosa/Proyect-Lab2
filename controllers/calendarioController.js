@@ -165,42 +165,6 @@ const calendarioController = {
             console.error(error);
             res.status(500).json({ error: 'Error al obtener horarios' });
         }
-    },
-
-    obtenerTurnosDisponibles: async (req, res) => {
-        try {
-            const { sucursal, especialidad, medico } = req.query;
-            const [turnos] = await db.promise().query(`
-                SELECT DISTINCT 
-                    DATE(c.fechaturno) as fecha,
-                    COUNT(*) as turnos_disponibles
-                FROM calendar c
-                JOIN agenda a ON c.agendaid = a.agendaid
-                JOIN medicos m ON a.medico_id = m.medicoid
-                LEFT JOIN turno t ON c.calendarid = t.calendar_id
-                WHERE c.estado = 1 
-                AND c.fechaturno >= CURDATE()
-                AND (t.turniid IS NULL OR t.estadoturno_id = 1)
-                AND a.sucursal_id = ?
-                AND m.especialidadid = ?
-                AND m.medicoid = ?
-                GROUP BY DATE(c.fechaturno)
-            `, [sucursal, especialidad, medico]);
-
-            res.json({
-                success: true,
-                data: turnos.map(turno => ({
-                    fecha: moment(turno.fecha).format('YYYY-MM-DD'),
-                    turnos: turno.turnos_disponibles
-                }))
-            });
-        } catch (error) {
-            console.error('Error al obtener turnos disponibles:', error);
-            res.status(500).json({ 
-                success: false, 
-                message: 'Error al obtener turnos disponibles' 
-            });
-        }
     }
 };
 

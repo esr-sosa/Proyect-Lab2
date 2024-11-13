@@ -12,34 +12,46 @@ document.addEventListener('DOMContentLoaded', function() {
         selectConstraint: {
             start: new Date()
         },
-        dateClick: function(info) {
+        dateClick: async function(info) {
             const fecha = info.dateStr;
             if (info.dayEl.classList.contains('dia-disponible')) {
-                const sucursal = document.getElementById('filtroSucursal').value;
-                const especialidad = document.getElementById('filtroEspecialidad').value;
-                const medico = document.getElementById('filtroMedico').value;
-                
-                window.location.href = `/turno/buscarTurnos?fecha=${fecha}&sucursal=${sucursal}&especialidad=${especialidad}&medico=${medico}`;
+                try {
+                    const response = await fetch('/turno/buscarTurnos', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            fecha,
+                            sucursal: sucursalId,
+                            especialidad: especialidadId,
+                            medico: medicoId
+                        })
+                    });
+                    
+                    const html = await response.text();
+                    document.getElementById('contenedorHorarios').innerHTML = html;
+                } catch (error) {
+                    console.error('Error:', error);
+                }
             }
         },
         events: function(info, successCallback, failureCallback) {
-            const sucursal = document.getElementById('filtroSucursal').value;
-            const especialidad = document.getElementById('filtroEspecialidad').value;
-            const medico = document.getElementById('filtroMedico').value;
-
-            if (!sucursal || !especialidad || !medico) {
-                return;
-            }
+            const sucursal = sucursalId;
+            const especialidad = especialidadId;
+            const medico = medicoId;
 
             fetch(`/turno/api/turnos-disponibles?sucursal=${sucursal}&especialidad=${especialidad}&medico=${medico}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         const events = data.data.map(dia => ({
-                            title: `${dia.turnos} turnos`,
+                            title: `${dia.turnos_disponibles} turnos`,
                             start: dia.fecha,
                             classNames: ['dia-disponible'],
-                            display: 'background'
+                            display: 'background',
+                            color: '#28a745'
                         }));
                         successCallback(events);
                     }

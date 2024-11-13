@@ -59,7 +59,7 @@ app.use('/api', apiRoutes);
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
-// Agregar después de las configuraciones de sesión
+// Logging middleware
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     console.log('Session:', req.session);
@@ -67,23 +67,21 @@ app.use((req, res, next) => {
     next();
 });
 
-// Captura el error 404
+// Mover el middleware 404 aquí, después de todas las rutas
 app.use((req, res, next) => {
-  const err = new Error('Página no encontrada');
-  err.status = 404;
-  next(err);
+    const err = new Error('Página no encontrada');
+    err.status = 404;
+    next(err);
 });
 
 // Manejador de errores
 app.use((err, req, res, next) => {
-  // Configura el estado del error
-  res.status(err.status || 500);
-  
-  res.render('error', { 
-    title: err.status === 404 ? 'Página no encontrada' : 'Error',
-    message: err.status === 404 ? 'Lo sentimos, la página que buscas no existe.' : err.message,
-    error: req.app.get('env') === 'development' ? err : {}
-  });
+    res.status(err.status || 500);
+    res.render('error', { 
+        title: err.status === 404 ? 'Página no encontrada' : 'Error',
+        message: err.status === 404 ? 'Lo sentimos, la página que buscas no existe.' : err.message,
+        error: req.app.get('env') === 'development' ? err : {}
+    });
 });
 
 app.locals.moment = moment;

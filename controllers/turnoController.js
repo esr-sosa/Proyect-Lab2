@@ -213,57 +213,48 @@ const turnoController = {
         try {
             const { sucursal, especialidad, medico } = req.body;
             
-            if (!sucursal || !especialidad || !medico) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Todos los campos son requeridos'
-                });
-            }
-
-            const [turnos] = await db.promise().query(`
+            // Obtener información del médico y sus turnos disponibles
+            const [infoMedico] = await db.promise().query(`
                 SELECT 
-                    c.calendarid,
-                    c.fechaturno,
-                    c.inicioturno,
-                    c.finalturno,
-                    a.nombreagenda,
-                    s.nombre_sucrsal as sucursal_nombre,
-                    p.nombre as medico_nombre,
-                    p.apellido as medico_apellido,
-                    e.nombre_esp as especialidad
+                    p.nombre, 
+                    p.apellido, 
+                    e.nombre_esp, 
+                    s.nombre_sucrsal,
+                    a.agendaid
+                FROM medicos m
+                JOIN persona p ON m.personaid = p.personaid
+                JOIN especialidad e ON m.especialidadId = e.especialidadId
+                JOIN agenda a ON m.medicoid = a.medico_id
+                JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                WHERE m.medicoid = ?
+                LIMIT 1
+            `, [medico]);
+
+            // Obtener días disponibles
+            const [diasDisponibles] = await db.promise().query(`
+                SELECT DISTINCT 
+                    DATE(c.fecha) as fecha
                 FROM calendar c
                 JOIN agenda a ON c.agendaid = a.agendaid
-                JOIN sucursal s ON a.sucursal_id = s.sucursalid
-                JOIN medicos m ON a.medico_id = m.medicoid
-                JOIN persona p ON m.personaid = p.personaid
-                JOIN especialidad e ON m.especialidadid = e.especialidadId
-                LEFT JOIN turno t ON c.calendarid = t.calendar_id
-                WHERE a.sucursal_id = ?
-                AND m.especialidadid = ?
-                AND m.medicoid = ?
+                WHERE a.medico_id = ?
                 AND c.estado = 1
-                AND t.turniid IS NULL
-                ORDER BY c.fechaturno, c.inicioturno
-            `, [sucursal, especialidad, medico]);
+                AND c.fecha >= CURDATE()
+                ORDER BY c.fecha
+            `, [medico]);
 
-            // Agrupar turnos por fecha
-            const turnosAgrupados = turnos.reduce((grupos, turno) => {
-                const fecha = moment(turno.fechaturno).format('YYYY-MM-DD');
-                if (!grupos[fecha]) {
-                    grupos[fecha] = [];
-                }
-                grupos[fecha].push(turno);
-                return grupos;
-            }, {});
-
-            res.render('turno/resultadosBusqueda', {
-                turnosAgrupados,
-                moment,
+            res.render('turno/calendario', {
+                title: 'Seleccionar Fecha',
+                fechasDisponibles: diasDisponibles,
+                medico: infoMedico[0],
+                sucursal,
+                especialidad,
+                medicoId: medico,
                 user: req.session.user
             });
+
         } catch (error) {
-            console.error('Error en buscarTurno:', error);
-            res.status(500).send('Error al buscar turnos');
+            console.error('Error en buscarTurnos:', error);
+            res.status(500).send('Error al buscar turnos disponibles');
         }
     },
 
@@ -515,119 +506,79 @@ const turnoController = {
         }
     },
 
-    buscarTurno: async (req, res) => {
+    mostrarFormularioBusqueda: async (req, res) => {
         try {
-            const { sucursal, especialidad, medico } = req.body;
+            const [sucursales] = await db.promise().query(`
+                SELECT sucursalid, nombre_sucrsal 
+                FROM sucursal 
+                WHERE estado = 1
+            `);
             
-            // Obtener días disponibles para el médico seleccionado
-            const [diasDisponibles] = await db.promise().query(`
-                SELECT DISTINCT 
-                    DATE(c.fechaturno) as fecha
-                FROM calendar c
-                JOIN agenda a ON c.agendaid = a.agendaid
-                LEFT JOIN turno t ON c.calendarid = t.calendar_id
-                WHERE a.sucursal_id = ?
-                AND a.medico_id = ?
-                AND c.estado = 1
-                AND t.turniid IS NULL
-                AND c.fechaturno >= CURDATE()
-                ORDER BY c.fechaturno
-            `, [sucursal, medico]);
-
-            // Convertir las fechas a formato que necesita el calendario
-            const fechasDisponibles = diasDisponibles.map(dia => 
-                moment(dia.fecha).format('YYYY-MM-DD')
-            );
-
-            res.render('turno/calendario', {
-                title: 'Seleccionar Fecha',
-                fechasDisponibles: JSON.stringify(fechasDisponibles),
-                sucursal,
-                especialidad,
-                medico,
+            res.render('turno/buscarTurnos', {
+                title: 'Buscar Turnos',
+                sucursales,
                 user: req.session.user
             });
-
         } catch (error) {
-            console.error('Error en buscarTurno:', error);
-            res.status(500).send('Error al buscar turnos disponibles');
+            console.error('Error:', error);
+            res.status(500).send('Error al cargar el formulario de búsqueda');
         }
     },
 
-    buscarHorarios: async (req, res) => {
+    procesarBusquedaTurno: async (req, res) => {
         try {
-            const { fecha, sucursal, especialidad, medico } = req.body;
+            const { sucursal, especialidad, medico } = req.body;
+            
+            // Obtener información del médico
+            const [infoMedico] = await db.promise().query(`
+                SELECT p.nombre, p.apellido, e.nombre_esp, s.nombre_sucrsal
+                FROM medicos m
+                JOIN persona p ON m.personaid = p.personaid
+                JOIN especialidad e ON m.especialidadId = e.especialidadId
+                JOIN agenda a ON m.medicoid = a.medico_id
+                JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                WHERE m.medicoid = ?
+                LIMIT 1
+            `, [medico]);
 
-            const [turnos] = await db.promise().query(`
-                SELECT 
-                    c.calendarid,
-                    c.fechaturno,
-                    c.inicioturno,
-                    c.finalturno,
-                    a.nombreagenda,
-                    s.nombre_sucrsal as sucursal_nombre,
-                    p.nombre as medico_nombre,
-                    p.apellido as medico_apellido,
-                    e.nombre_esp as especialidad
+            // Obtener turnos disponibles
+            const [turnosDisponibles] = await db.promise().query(`
+                SELECT c.calendarid, c.fechaturno, c.inicioturno, c.finalturno,
+                       a.nombreagenda, s.nombre_sucrsal,
+                       p.nombre as medico_nombre, p.apellido as medico_apellido,
+                       e.nombre_esp as especialidad
                 FROM calendar c
                 JOIN agenda a ON c.agendaid = a.agendaid
                 JOIN sucursal s ON a.sucursal_id = s.sucursalid
                 JOIN medicos m ON a.medico_id = m.medicoid
                 JOIN persona p ON m.personaid = p.personaid
-                JOIN especialidad e ON m.especialidadid = e.especialidadId
-                LEFT JOIN turno t ON c.calendarid = t.calendar_id
-                WHERE DATE(c.fechaturno) = ?
-                AND a.sucursal_id = ?
-                AND m.especialidadid = ?
-                AND m.medicoid = ?
+                JOIN especialidad e ON m.especialidadId = e.especialidadId
+                WHERE m.medicoid = ?
                 AND c.estado = 1
-                AND t.turniid IS NULL
-                ORDER BY c.inicioturno
-            `, [fecha, sucursal, especialidad, medico]);
+                AND c.fechaturno >= CURDATE()
+                ORDER BY c.fechaturno, c.inicioturno
+            `, [medico]);
+
+            // Agrupar turnos por fecha
+            const turnosAgrupados = turnosDisponibles.reduce((acc, turno) => {
+                const fecha = moment(turno.fechaturno).format('YYYY-MM-DD');
+                if (!acc[fecha]) {
+                    acc[fecha] = [];
+                }
+                acc[fecha].push(turno);
+                return acc;
+            }, {});
 
             res.render('turno/resultadosBusqueda', {
-                turnos,
-                moment,
+                title: 'Turnos Disponibles',
+                turnosAgrupados,
+                medico: infoMedico[0],
                 user: req.session.user
             });
 
         } catch (error) {
-            console.error('Error en buscarHorarios:', error);
-            res.status(500).send('Error al buscar horarios disponibles');
-        }
-    },
-
-    buscarTurnos: async (req, res) => {
-        try {
-            const { sucursal, especialidad, medico } = req.body;
-            
-            // Obtener días disponibles para el médico seleccionado
-            const [diasDisponibles] = await db.promise().query(`
-                SELECT DISTINCT 
-                    DATE(c.fechaturno) as fecha
-                FROM calendar c
-                JOIN agenda a ON c.agendaid = a.agendaid
-                LEFT JOIN turno t ON c.calendarid = t.calendar_id
-                WHERE a.sucursal_id = ?
-                AND a.medico_id = ?
-                AND c.estado = 1
-                AND t.turniid IS NULL
-                AND c.fechaturno >= CURDATE()
-                ORDER BY c.fechaturno
-            `, [sucursal, medico]);
-
-            res.json({
-                success: true,
-                data: diasDisponibles.map(dia => ({
-                    fecha: moment(dia.fecha).format('YYYY-MM-DD')
-                }))
-            });
-        } catch (error) {
-            console.error('Error en buscarTurnos:', error);
-            res.status(500).json({ 
-                success: false, 
-                message: 'Error al buscar turnos disponibles' 
-            });
+            console.error('Error:', error);
+            res.status(500).send('Error al procesar la búsqueda');
         }
     }
 };
