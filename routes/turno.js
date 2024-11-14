@@ -19,5 +19,6 @@ router.post('/confirmar-secretaria', auth.isLoggedIn, auth.checkRole([1,2]), tur
 router.post('/cancelar/:turnoId', auth.isLoggedIn, auth.checkRole([1,2]), turnoController.cancelarTurno);
 router.get('/secretario', auth.isLoggedIn, auth.checkRole([1,2]), turnoController.secretarioTurnos);
 router.get('/ver/:turnoId', auth.isLoggedIn, auth.checkRole([1,2,3]), turnoController.verTurno);
+router.post('/reservar', turnoController.reservarTurno);
 
 module.exports = router; 

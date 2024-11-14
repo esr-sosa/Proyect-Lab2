@@ -61,35 +61,46 @@ function confirmarTurnoSecretaria(calendarId) {
 }
 
 async function reservarTurno(calendarId, personaId) {
+    console.log('Iniciando reserva:', { calendarId, personaId });
+    
     try {
-        const response = await fetch(`/turno/reservarTurnoPaciente?calendarId=${calendarId}`, {
+        const response = await fetch('/turno/reservar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({ 
+                calendarId,
+                personaId 
+            })
         });
 
+        console.log('Respuesta del servidor:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('Datos recibidos:', data);
         
         if (data.success) {
-            // Mostrar mensaje de éxito
             Swal.fire({
                 title: 'Éxito',
                 text: 'Turno reservado correctamente',
                 icon: 'success'
             }).then(() => {
-                window.location.reload();
+                window.location.href = '/turno/misTurnos';
             });
         } else {
-            // Mostrar mensaje de error
             Swal.fire({
                 title: 'Error',
-                text: 'No se pudo reservar el turno',
+                text: data.message || 'No se pudo reservar el turno',
                 icon: 'error'
             });
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error detallado:', error);
         Swal.fire({
             title: 'Error',
             text: 'Ocurrió un error al procesar la solicitud',

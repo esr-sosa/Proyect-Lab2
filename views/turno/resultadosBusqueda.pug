@@ -22,12 +22,12 @@ block content
                       button.accordion-button(
                         type='button'
                         data-bs-toggle='collapse'
-                        data-bs-target=`#collapse${fecha.replace(/-/g, '')}`
+                        data-bs-target=`#collapse${moment(fecha).format('YYYYMMDD')}`
                       )
                         | #{moment(fecha).format('DD/MM/YYYY')}
                         span.badge.bg-primary.ms-2 #{turnos.length} turnos
                     
-                    .accordion-collapse.collapse(id=`collapse${fecha.replace(/-/g, '')}`)
+                    .accordion-collapse.collapse(id=`collapse${moment(fecha).format('YYYYMMDD')}`)
                       .accordion-body
                         .table-responsive
                           table.table.table-hover
@@ -46,20 +46,10 @@ block content
                                   td= turno.especialidad
                                   td= turno.sucursal_nombre
                                   td
-                                    if user.idperfil === 4
-                                      if turno.estado_turno === 1
-                                        button.btn.btn-primary.btn-sm(onclick=`reservarTurno(${turno.calendarid}, ${user.personaid})`)
-                                          i.fas.fa-calendar-plus.me-1
-                                          | Reservar
-                                    else if user.idperfil === 3 || user.idperfil === 1
-                                      if turno.estado_turno === 1
-                                        button.btn.btn-primary.btn-sm(onclick=`reservarTurno(${turno.calendarid}, ${user.personaid})`)
-                                          i.fas.fa-calendar-plus.me-1
-                                          | Reservar
-                                      else if turno.estado_turno === 2
-                                        button.btn.btn-success.btn-sm(onclick=`confirmarTurnoSecretaria(${turno.calendarid})`)
-                                          i.fas.fa-check-circle.me-1
-                                          | Confirmar
+                                    if turno.estado_turno === 1
+                                      button.btn.btn-primary.btn-sm(onclick=`reservarTurno(${turno.calendarid}, ${pacienteId})`)
+                                        i.fas.fa-calendar-check.me-1
+                                        | Confirmar Reserva
 
 block scripts
   script(src="/js/turno/reserva.js")

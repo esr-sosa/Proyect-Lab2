@@ -145,29 +145,75 @@ const turnoController = {
 
     reservarTurno: async (req, res) => {
         try {
-            const { turnoId, personaId } = req.query;
-            
-            // Verificar si el turno existe y está disponible
-            const [turnoExistente] = await db.promise().query(`
-                SELECT * FROM turno WHERE turniid = ? AND estadoturno_id = 1
-            `, [turnoId]);
+            console.log('Datos recibidos:', req.body);
+            const { calendarId, personaId } = req.body;
 
-            if (!turnoExistente.length) {
-                return res.status(400).send('El turno no está disponible');
+            // Verificar si el turno ya está reservado
+            const [turnoExistente] = await db.promise().query(`
+                SELECT * FROM turno WHERE calendar_id = ?
+            `, [calendarId]);
+
+            if (turnoExistente.length > 0) {
+                return res.json({
+                    success: false,
+                    message: 'El turno ya no está disponible'
+                });
             }
 
-            // Actualizar el turno
-            await db.promise().query(`
-                UPDATE turno 
-                SET persona_id = ?,
-                    estadoturno_id = 2
-                WHERE turniid = ?
-            `, [personaId, turnoId]);
+            // Obtener la fecha y hora del calendar
+            const [calendarInfo] = await db.promise().query(`
+                SELECT fechaturno, inicioturno 
+                FROM calendar 
+                WHERE calendarid = ?
+            `, [calendarId]);
 
-            res.redirect('/turno/misTurnos');
+            if (!calendarInfo.length) {
+                return res.json({
+                    success: false,
+                    message: 'Calendario no encontrado'
+                });
+            }
+
+            // Crear el turno con estado 4 (confirmado) y fecha_confirmacion
+            const [result] = await db.promise().query(`
+                INSERT INTO turno (
+                    calendar_id, 
+                    persona_id, 
+                    estadoturno_id, 
+                    fecha,
+                    hora,
+                    observaciones,
+                    fecha_confirmacion
+                )
+                VALUES (?, ?, 4, ?, ?, ?, NOW())
+            `, [
+                calendarId, 
+                personaId, 
+                calendarInfo[0].fechaturno,
+                calendarInfo[0].inicioturno,
+                ''  // observaciones vacías por defecto
+            ]);
+
+            // Actualizar estado del calendar
+            await db.promise().query(`
+                UPDATE calendar 
+                SET estado = 2
+                WHERE calendarid = ?
+            `, [calendarId]);
+
+            res.json({
+                success: true,
+                message: 'Turno confirmado exitosamente',
+                turnoId: result.insertId
+            });
+
         } catch (error) {
-            console.error(error);
-            res.status(500).send('Error al reservar el turno');
+            console.error('Error detallado:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error al reservar el turno',
+                error: error.message
+            });
         }
     },
 
@@ -180,33 +226,19 @@ const turnoController = {
                 WHERE estado = 1
             `);
             
-            const [medicos] = await db.promise().query(`
-                SELECT m.medicoid, p.nombre, p.apellido 
-                FROM medicos m 
-                JOIN persona p ON m.personaid = p.personaid 
-                WHERE m.estado = 1
-            `);
-            
-            const [especialidades] = await db.promise().query(`
-                SELECT especialidadId, nombre_esp 
-                FROM especialidad 
-                WHERE estado = 1
+            // Agregar consulta para obtener pacientes
+            const [pacientes] = await db.promise().query(`
+                SELECT p.personaid, p.nombre, p.apellido, p.dni 
+                FROM persona p
+                JOIN user u ON p.userid = u.userid
+                WHERE u.idperfil = 4
+                ORDER BY p.apellido, p.nombre
             `);
 
-            // Determinar qué vista mostrar según el perfil
-            let viewName;
-            if (req.session.user.isAdmin || req.session.user.tipo_perfil === 'secretaria') {
-                viewName = 'turno/secretarioBuscarAgenda';
-            } else {
-                viewName = 'turno/pacienteBusAgenda';
-            }
-
-            // Renderizar vista con todos los datos necesarios
-            return res.render(viewName, {
+            return res.render('turno/secretarioBuscarAgenda', {
                 title: 'Buscar Turnos',
                 sucursales: sucursales,
-                medicos: medicos,
-                especialidades: especialidades,
+                pacientes: pacientes,
                 user: req.session.user
             });
 
@@ -485,10 +517,9 @@ const turnoController = {
 
     procesarBusquedaTurno: async (req, res) => {
         try {
-            const { sucursal, especialidad, medico } = req.body;
+            const { sucursal, especialidad, medico, paciente } = req.body;
             
-            // Obtener turnos disponibles
-            const [turnosDisponibles] = await db.promise().query(`
+            const [turnos] = await db.promise().query(`
                 SELECT c.calendarid, c.fechaturno, c.inicioturno, c.finalturno,
                        a.nombreagenda, s.nombre_sucrsal as sucursal_nombre,
                        p.nombre as medico_nombre, p.apellido as medico_apellido,
@@ -508,8 +539,8 @@ const turnoController = {
             `, [medico]);
 
             // Agrupar turnos por fecha
-            const turnosAgrupados = turnosDisponibles.reduce((acc, turno) => {
-                const fecha = turno.fechaturno.toISOString().split('T')[0];
+            const turnosAgrupados = turnos.reduce((acc, turno) => {
+                const fecha = moment(turno.fechaturno).format('YYYY-MM-DD');
                 if (!acc[fecha]) {
                     acc[fecha] = [];
                 }
@@ -520,6 +551,7 @@ const turnoController = {
             res.render('turno/resultadosBusqueda', {
                 title: 'Turnos Disponibles',
                 turnosAgrupados,
+                pacienteId: paciente,
                 user: req.session.user,
                 moment: require('moment')
             });
@@ -532,24 +564,53 @@ const turnoController = {
 
     reservarTurnoPaciente: async (req, res) => {
         try {
+            console.log('Datos recibidos:', req.query, req.body); // Log agregado
+            
             const { calendarId } = req.query;
-            const personaId = req.session.user.personaid;
+            const personaId = req.body.personaId || req.session.user.personaid;
 
+            console.log('Verificando disponibilidad del turno...'); // Log agregado
+            
+            // Verificar si el turno ya está reservado
+            const [turnoExistente] = await db.promise().query(`
+                SELECT * FROM turno WHERE calendar_id = ?
+            `, [calendarId]);
+
+            if (turnoExistente.length > 0) {
+                console.log('Turno ya reservado'); // Log agregado
+                return res.status(400).json({
+                    success: false,
+                    message: 'El turno ya no está disponible'
+                });
+            }
+
+            console.log('Creando nuevo turno...'); // Log agregado
+            
             // Crear turno en estado "Reservado" (2)
             const [result] = await db.promise().query(`
                 INSERT INTO turno (calendar_id, persona_id, estadoturno_id, created_at)
                 VALUES (?, ?, 2, NOW())
             `, [calendarId, personaId]);
 
-            // Actualizar estado del calendar a "Reservado" (2)
+            // Actualizar estado del calendar
             await db.promise().query(`
                 UPDATE calendar SET estado = 2 WHERE calendarid = ?
             `, [calendarId]);
 
-            res.json({ success: true, turnoId: result.insertId });
+            console.log('Turno creado exitosamente:', result); // Log agregado
+            
+            res.json({ 
+                success: true, 
+                turnoId: result.insertId,
+                message: 'Turno reservado exitosamente'
+            });
         } catch (error) {
-            console.error('Error:', error);
-            res.status(500).json({ success: false });
+            console.error('Error detallado:', error); // Log mejorado
+            res.status(500).json({ 
+                success: false,
+                message: 'Error al reservar el turno',
+                error: error.message 
+            });
         }
     },
 
