@@ -18,34 +18,34 @@ usuarios:
 usuarios:
 admin:
 user: admin
-pass: 123
-medicos
+pass: 123 /
+Medicos
 ruben juarez 
 pass: 28957451 
-user: rubenj
+user: rubenj//
 ludmila cavallo 
 pass: 31584565 
-user: ludmis
+user: ludmis//
 jorge panzudo 
 pass:14587546 
-user: panzudo@gg.com
+user: panzudo@gg.com//
 sofia saens
 pass: 85454521 
-user: ss@gmail.com
-pacientes
+user: ss@gmail.com//
+Pacientes
 pablo perez 
 pass: 32584567 
-user:pablo@gmail.com
+user:pablo@gmail.com//
 juan sale 
 pass: 12475285 
-user: sale@gmail.com
+user: sale@gmail.com//
 pedro sosa 
 pass: 15845412 
-user: pp@sas.com
+user: pp@sas.com//
 perla sanchez 
 pass: 42587564 
-user: perla@gmail.com 
-secretarias
+user: perla@gmail.com //
+Secretarias
 jazmin perez 
 pass:31874531 
 user: jp@gmail.com
