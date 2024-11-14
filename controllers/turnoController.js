@@ -680,8 +680,6 @@ const turnoController = {
     generarComprobantePDF: async (req, res) => {
         try {
             const turnoId = req.params.id;
-            
-            // Obtener datos del turno
             const [turno] = await db.promise().query(`
                 SELECT 
                     t.*,
@@ -711,33 +709,106 @@ const turnoController = {
             }
 
             const PDFDocument = require('pdfkit');
-            const doc = new PDFDocument();
+            const doc = new PDFDocument({
+                size: 'A4',
+                margin: 50
+            });
 
-            // Configurar respuesta HTTP
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `attachment; filename=turno-${turnoId}.pdf`);
             doc.pipe(res);
 
-            // Diseñar el PDF
-            doc.fontSize(20).text('Comprobante de Turno', { align: 'center' });
-            doc.moveDown();
-            doc.fontSize(12);
+            // Encabezado
+            doc.fontSize(24)
+               .font('Helvetica-Bold')
+               .text('Comprobante de Turno', { align: 'center' });
+            
+            doc.moveDown(2);
 
-            // Datos del turno
-            doc.text(`Paciente: ${turno[0].paciente_nombre} ${turno[0].paciente_apellido}`);
-            doc.text(`DNI: ${turno[0].paciente_dni}`);
-            doc.moveDown();
-            doc.text(`Especialidad: ${turno[0].especialidad}`);
-            doc.text(`Médico: Dr/a. ${turno[0].medico_nombre} ${turno[0].medico_apellido}`);
-            doc.moveDown();
-            doc.text(`Fecha: ${moment(turno[0].fechaturno).format('DD/MM/YYYY')}`);
-            doc.text(`Hora: ${moment(turno[0].inicioturno, 'HH:mm:ss').format('HH:mm')} hs`);
-            doc.moveDown();
-            doc.text(`Lugar: ${turno[0].nombre_sucrsal}`);
-            doc.text(`Dirección: ${turno[0].sucursal_direccion}`);
+            // Línea divisoria
+            doc.moveTo(50, doc.y)
+               .lineTo(545, doc.y)
+               .stroke();
             
             doc.moveDown();
-            doc.fontSize(10).text('Por favor, presentarse 10 minutos antes del horario del turno', { align: 'center' });
+
+            // Sección de datos del paciente
+            doc.fontSize(16)
+               .font('Helvetica-Bold')
+               .text('Datos del Paciente', { underline: true });
+            
+            doc.moveDown();
+            
+            doc.fontSize(12)
+               .font('Helvetica')
+               .text(`Nombre y Apellido: ${turno[0].paciente_nombre} ${turno[0].paciente_apellido}`, { indent: 20 })
+               .moveDown(0.5)
+               .text(`DNI: ${turno[0].paciente_dni}`, { indent: 20 });
+
+            doc.moveDown(1.5);
+
+            // Sección de datos del turno
+            doc.fontSize(16)
+               .font('Helvetica-Bold')
+               .text('Datos del Turno', { underline: true });
+            
+            doc.moveDown();
+
+            // Crear tabla de datos
+            const datos = [
+                ['Fecha:', moment(turno[0].fechaturno).format('DD/MM/YYYY')],
+                ['Hora:', moment(turno[0].inicioturno, 'HH:mm:ss').format('HH:mm') + ' hs'],
+                ['Especialidad:', turno[0].especialidad],
+                ['Médico:', `Dr/a. ${turno[0].medico_nombre} ${turno[0].medico_apellido}`],
+                ['Lugar:', turno[0].nombre_sucrsal],
+                ['Dirección:', turno[0].sucursal_direccion]
+            ];
+
+            let yPos = doc.y;
+            datos.forEach(([label, value]) => {
+                doc.fontSize(12)
+                   .font('Helvetica-Bold')
+                   .text(label, 70, yPos, { continued: true })
+                   .font('Helvetica')
+                   .text(`  ${value}`, { indent: 20 });
+                yPos += 25;
+            });
+
+            doc.moveDown(3); // Aumentamos el espacio antes de la sección importante
+
+            // Sección importante con mejor formato
+            doc.fontSize(14)
+               .font('Helvetica-Bold')
+               .text('INFORMACIÓN IMPORTANTE', { align: 'center' });
+
+            doc.moveDown();
+
+            // Crear un marco para la información importante
+            const boxTop = doc.y;
+            doc.rect(50, boxTop, 495, 100)
+               .lineWidth(1)
+               .stroke();
+
+            // Agregar contenido dentro del marco con mejor espaciado
+            doc.fontSize(11)
+               .font('Helvetica')
+               .text('Por favor tenga en cuenta:', 70, boxTop + 20)
+               .moveDown(0.5)
+               .text('• Presentarse 10 minutos antes del horario del turno', { indent: 20 })
+               .moveDown(0.5)
+               .text('• Traer DNI y este comprobante', { indent: 20 })
+               .moveDown(0.5)
+               .text('• En caso de no poder asistir, cancelar el turno con 24hs de anticipación', { indent: 20 });
+
+            doc.moveDown(2);
+
+            // Pie de página con más estilo
+            doc.fontSize(9)
+               .font('Helvetica-Oblique')
+               .text('Este comprobante fue generado digitalmente por el sistema de turnos.', {
+                   align: 'center',
+                   color: 'grey'
+               });
 
             doc.end();
 
