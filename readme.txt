@@ -10,6 +10,7 @@ admin: puede gestionar sucursales, especialidades, obras sociales, tipos de aten
 secretaria: accede a  turnos y sobreturnos puede agregar reservar confirmar  modificar y cancelar, puede agregar o dar de alta y baja a pacientes y turnos puede ver las agendas disponibles.
 paciente: puede reservar / cancelar turnos, modifcatr sus datos y reservar un turno disponible. luego debe ser confirmado por la secretaria
 medico: puede ver sus agendas / turnos dispoibles
+Adjunto diagrama de casos de uso y entidad-relacion
 
 usuarios:
 
