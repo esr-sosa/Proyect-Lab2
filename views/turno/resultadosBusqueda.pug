@@ -46,11 +46,20 @@ block content
                                   td= turno.especialidad
                                   td= turno.sucursal_nombre
                                   td
-                                    button.btn.btn-primary.btn-sm(
-                                      onclick=`reservarTurno(${turno.calendarid})`
-                                    )
-                                      i.fas.fa-calendar-check.me-1
-                                      | Reservar
+                                    if user.idperfil === 4
+                                      if turno.estado_turno === 1
+                                        button.btn.btn-primary.btn-sm(onclick=`reservarTurno(${turno.calendarid}, ${user.personaid})`)
+                                          i.fas.fa-calendar-plus.me-1
+                                          | Reservar
+                                    else if user.idperfil === 3 || user.idperfil === 1
+                                      if turno.estado_turno === 1
+                                        button.btn.btn-primary.btn-sm(onclick=`reservarTurno(${turno.calendarid}, ${user.personaid})`)
+                                          i.fas.fa-calendar-plus.me-1
+                                          | Reservar
+                                      else if turno.estado_turno === 2
+                                        button.btn.btn-success.btn-sm(onclick=`confirmarTurnoSecretaria(${turno.calendarid})`)
+                                          i.fas.fa-check-circle.me-1
+                                          | Confirmar
 
 block scripts
-  script(src='/js/turno/reserva.js') 
+  script(src="/js/turno/reserva.js")

@@ -1,0 +1,48 @@
+extends layout
+
+block content
+    .container-fluid.py-4
+        .row.justify-content-center
+            .col-12
+                .card.shadow-lg.border-0
+                    .card-header.bg-primary.text-white.py-3.d-flex.justify-content-between.align-items-center
+                        h4.mb-0.fw-bold
+                            i.fas.fa-hospital-alt.me-2
+                            | Gestión de Obras Sociales
+                        a.btn.btn-light.btn-lg.shadow-sm(href="/obraSocial/crear")
+                            i.fas.fa-plus-circle.me-2
+                            | Nueva Obra Social
+                    
+                    .card-body.p-4
+                        .table-responsive
+                            table.table.table-hover.table-striped.align-middle
+                                thead.bg-light
+                                    tr.text-center
+                                        th.py-3
+                                            i.fas.fa-building.me-2
+                                            | Nombre
+                                        th.py-3
+                                            i.fas.fa-toggle-on.me-2
+                                            | Estado
+                                        th.py-3
+                                            i.fas.fa-cogs.me-2
+                                            | Acciones
+                                tbody
+                                    each obra in obras_sociales
+                                        tr.text-center
+                                            td.fw-bold= obra.nombre
+                                            td
+                                                span(class=`badge rounded-pill px-3 py-2 ${obra.estado ? 'bg-success' : 'bg-danger'}`)
+                                                    i(class=`fas ${obra.estado ? 'fa-check-circle' : 'fa-times-circle'} me-1`)
+                                                    = obra.estado ? 'Activo' : 'Inactivo'
+                                            td.text-center
+                                                .btn-group
+                                                    a.btn.btn-primary.btn-sm(href=`/obraSocial/editar/${obra.id_obra_social}`)
+                                                        i.fas.fa-edit.me-1
+                                                        | Editar
+                                                    button.btn.btn-warning.btn-sm(onclick=`toggleObraSocialStatus(${obra.id_obra_social}, ${!obra.estado})`)
+                                                        i.fas(class=obra.estado ? 'fa-toggle-on' : 'fa-toggle-off').me-1
+                                                        = obra.estado ? 'Desactivar' : 'Activar'
+
+block scripts
+    script(src="/js/obraSocial.js")

@@ -21,6 +21,13 @@ block content
       div.form-group
         label.form-label(for="foto_dni") Foto DNI:
         input.form-control(type="file", name="foto_dni", accept="image/*", required)
+        small.form-text.text-muted Sube una foto clara de tu DNI
+      div.form-group
+        label.form-label(for="obra_social") Obra Social:
+        select.form-control(name="obra_social", required)
+          option(value="") Seleccione una obra social
+          each obra in obras_sociales
+            option(value=obra.id_obra_social)= obra.nombre
       div.form-group
         label.form-label(for="telefono") Teléfono:
         input.form-control(type="text", name="telefono", required, placeholder="Ej: 266-5032890")

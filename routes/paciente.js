@@ -74,35 +74,47 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/agregar', (req, res) => {
-  res.render('paciente', { 
-    title: 'Agregar Paciente',
-    user: req.session.user,
-    error: null,
-    success: null
-  });
+router.get('/agregar', async (req, res) => {
+  try {
+    const [obras_sociales] = await db.promise().query('SELECT * FROM obra_social WHERE estado = 1');
+    
+    res.render('paciente', { 
+      title: 'Agregar Paciente',
+      user: req.session.user,
+      obras_sociales,
+      error: null,
+      success: null
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.render('paciente', {
+      title: 'Agregar Paciente',
+      user: req.session.user,
+      error: 'Error al cargar el formulario'
+    });
+  }
 });
 
 router.post('/agregar', upload.single('foto_dni'), async (req, res) => {
-  const { nombre, apellido, dni, email, telefono, direccion, localidad } = req.body;
+  const { nombre, apellido, dni, email, telefono, direccion, localidad, obra_social } = req.body;
   const foto_dni = req.file ? req.file.filename : null;
   
   try {
     const validationError = await validateUserData(db, dni, email);
     if (validationError) {
+      const [obras_sociales] = await db.promise().query('SELECT * FROM obra_social WHERE estado = 1');
       return res.render('paciente', {
         title: 'Agregar Paciente',
         user: req.session.user,
+        obras_sociales,
         error: validationError.error
       });
     }
 
     await db.promise().beginTransaction();
 
-    // Encriptar el DNI antes de usarlo como contraseña
     const hashedPassword = await bcrypt.hash(dni, saltRounds);
 
-    // 1. Crear usuario con la contraseña encriptada
     const [userResult] = await db.promise().query(
       'INSERT INTO user (nombre_user, password, idperfil, estado, createdAt, updateAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
       [email, hashedPassword, 4, 1]
@@ -110,10 +122,9 @@ router.post('/agregar', upload.single('foto_dni'), async (req, res) => {
     
     const userId = userResult.insertId;
 
-    // 2. Insertar en la tabla persona
-    const [personaResult] = await db.promise().query(
-      'INSERT INTO persona (nombre, apellido, dni, mail, telefono, foto_dni, userid, direccion, localidad, createdAt, updateAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
-      [nombre, apellido, dni, email, telefono, foto_dni, userId, direccion, localidad]
+    await db.promise().query(
+      'INSERT INTO persona (nombre, apellido, dni, mail, telefono, foto_dni, userid, direccion, localidad, obra_social, createdAt, updateAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
+      [nombre, apellido, dni, email, telefono, foto_dni, userId, direccion, localidad, obra_social]
     );
 
     await db.promise().commit();

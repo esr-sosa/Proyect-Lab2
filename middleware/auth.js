@@ -12,15 +12,18 @@ const checkRole = (roles) => {
         }
         
         let idperfil;
-        switch(req.session.user.tipo_perfil) {
+        switch(req.session.user.tipo_perfil.toLowerCase()) {
             case 'admin':
                 idperfil = 1;
                 break;
-            case 'secretaria':
+            case 'medico':
                 idperfil = 2;
                 break;
-            case 'paciente':
+            case 'secretaria':
                 idperfil = 3;
+                break;
+            case 'paciente':
+                idperfil = 4;
                 break;
             default:
                 idperfil = 0;

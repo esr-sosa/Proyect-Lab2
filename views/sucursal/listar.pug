@@ -1,0 +1,82 @@
+extends ../layout
+
+block content
+    .container-fluid.px-4.py-4
+        .row.mb-4
+            .col
+                h1.page-header
+                    i.fas.fa-hospital.me-2
+                    | Gestión de Sucursales
+
+        .card.shadow
+            .card-header.bg-primary.text-white.d-flex.justify-content-between.align-items-center
+                h5.mb-0
+                    i.fas.fa-table.me-2
+                    | Listado de Sucursales
+                a.btn.btn-light(href='/sucursal/nuevo')
+                    i.fas.fa-plus.me-2
+                    | Nueva Sucursal
+            
+            .card-body
+                .table-responsive
+                    table.table.table-hover.table-striped
+                        thead.table-light
+                            tr
+                                th.align-middle Nombre
+                                th.align-middle Dirección
+                                th.align-middle Teléfono
+                                th.text-center.align-middle Acciones
+                        tbody
+                            each sucursal in sucursales
+                                tr
+                                    td.align-middle= sucursal.nombre_sucrsal
+                                    td.align-middle= sucursal.direccion
+                                    td.align-middle= sucursal.telefono
+                                    td.text-center
+                                        .btn-group
+                                            a.btn.btn-primary.btn-sm(href=`/sucursal/editar/${sucursal.sucursalid}`)
+                                                i.fas.fa-edit.me-1
+                                                | Editar
+                                            button.btn.btn-danger.btn-sm(onclick=`eliminarSucursal(${sucursal.sucursalid})`)
+                                                i.fas.fa-trash.me-1
+                                                | Eliminar
+
+block scripts
+    script.
+        async function eliminarSucursal(id) {
+            if (await confirmarEliminacion()) {
+                try {
+                    const response = await fetch(`/sucursal/eliminar/${id}`, {
+                        method: 'DELETE'
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        mostrarError(data.error);
+                    }
+                } catch (error) {
+                    mostrarError('Error al eliminar la sucursal');
+                }
+            }
+        }
+
+        function confirmarEliminacion() {
+            return Swal.fire({
+                title: '¿Está seguro?',
+                text: "Esta acción no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => result.isConfirmed);
+        }
+
+        function mostrarError(mensaje) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: mensaje
+            });
+        } 

@@ -39,99 +39,106 @@ const turnoController = {
 
     verTurno: async (req, res) => {
         try {
-            const turnoId = req.query.id;
+            const { turnoId } = req.params;
+            
+            // Consulta ajustada a la estructura real de la BD
             const [turno] = await db.promise().query(`
-                SELECT t.*, e.tipo as estado_tipo,
-                       c.fechaturno, c.inicioturno,
-                       a.nombreagenda,
-                       s.nombre_sucrsal as sucursal_nombre, s.direccion as sucursal_direccion,
-                       m.medicoid,
-                       p.nombre as medico_nombre, p.apellido as medico_apellido,
-                       pac.nombre as paciente_nombre, pac.apellido as paciente_apellido
+                SELECT 
+                    t.*,
+                    e.tipo as estado_tipo,
+                    c.fechaturno,
+                    c.inicioturno,
+                    a.nombreagenda,
+                    s.nombre_sucrsal as sucursal_nombre,
+                    s.direccion as sucursal_direccion,
+                    p_pac.nombre as paciente_nombre,
+                    p_pac.apellido as paciente_apellido,
+                    p_pac.mail as paciente_email,
+                    p_med.nombre as medico_nombre,
+                    p_med.apellido as medico_apellido,
+                    esp.nombre_esp as especialidad
                 FROM turno t
                 JOIN estado e ON t.estadoturno_id = e.estadoid
                 JOIN calendar c ON t.calendar_id = c.calendarid
                 JOIN agenda a ON c.agendaid = a.agendaid
                 JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                JOIN persona p_pac ON t.persona_id = p_pac.personaid
                 JOIN medicos m ON a.medico_id = m.medicoid
-                JOIN persona p ON m.personaid = p.personaid
-                LEFT JOIN persona pac ON t.persona_id = pac.personaid
+                JOIN persona p_med ON m.personaid = p_med.personaid
+                JOIN especialidad esp ON m.especialidadId = esp.especialidadId
                 WHERE t.turniid = ?
             `, [turnoId]);
 
             if (!turno.length) {
-                return res.status(404).send('Turno no encontrado');
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Turno no encontrado' 
+                });
             }
 
-            // Obtener lista de pacientes para el select si es secretario
-            let pacientes = [];
-            if (req.session.user.idperfil !== 3) {
-                [pacientes] = await db.promise().query(`
-                    SELECT personaid as id, nombre, apellido 
-                    FROM persona 
-                    WHERE userid IN (SELECT userid FROM user WHERE idperfil = 3)
-                `);
-            }
+            console.log('Datos del turno encontrado:', turno[0]); // Para debug
 
-            const viewName = req.session.user.idperfil === 3 ? 
-                'turno/pacienteConfirmarTurno' : 
-                'turno/secretarioConfirmarTurno';
-
-            res.render(viewName, {
+            res.render('turno/secretarioConfirmarTurno', {
                 title: 'Ver Turno',
                 turno: turno[0],
                 user: req.session.user,
-                pacientes: pacientes,
-                clinica: {
-                    nombre: turno[0].sucursal_nombre,
-                    direccion: turno[0].sucursal_direccion
-                },
-                calendario: {
-                    fecha: turno[0].fechaturno
-                },
-                persona: req.session.user,
-                moment: require('moment')
+                moment: require('moment') // Aseguramos que moment esté disponible
             });
+
         } catch (error) {
-            console.error(error);
-            res.status(500).send('Error al cargar el turno');
+            console.error('Error detallado:', error);
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error al ver el turno',
+                error: error.message 
+            });
         }
     },
 
     secretarioTurnos: async (req, res) => {
         try {
-           //  if (![1, 2].includes(req.session.user.idperfil)) {
-            //     return res.redirect('/');
-            // }
+            // Primero hagamos un console.log para ver qué turnos hay
+            const [checkTurnos] = await db.promise().query('SELECT * FROM turno');
+            console.log('Todos los turnos:', checkTurnos);
 
             const [turnos] = await db.promise().query(`
-                SELECT t.*, e.tipo as estado_tipo,
-                       c.fechaturno, c.inicioturno,
-                       a.nombreagenda,
-                       s.nombre_sucrsal as sucursal_nombre,
-                       m.medicoid,
-                       p.nombre as medico_nombre, p.apellido as medico_apellido,
-                       pac.nombre as persona_nombre, pac.apellido as persona_apellido,
-                       pac.personaid as PersonaId
+                SELECT 
+                    t.turniid,
+                    t.persona_id,
+                    t.calendar_id,
+                    t.estadoturno_id,
+                    e.tipo as estado_tipo,
+                    c.fechaturno,
+                    c.inicioturno,
+                    a.nombreagenda,
+                    s.nombre_sucrsal as sucursal_nombre,
+                    p.nombre as persona_nombre,
+                    p.apellido as persona_apellido,
+                    med.nombre as medico_nombre,
+                    med.apellido as medico_apellido
                 FROM turno t
-                JOIN estado e ON t.estadoturno_id = e.estadoid
-                JOIN calendar c ON t.calendar_id = c.calendarid
-                JOIN agenda a ON c.agendaid = a.agendaid
-                JOIN sucursal s ON a.sucursal_id = s.sucursalid
-                JOIN medicos m ON a.medico_id = m.medicoid
-                JOIN persona p ON m.personaid = p.personaid
-                LEFT JOIN persona pac ON t.persona_id = pac.personaid
-                WHERE t.estadoturno_id IN (2, 4)
-                ORDER BY c.fechaturno DESC, c.inicioturno ASC
+                INNER JOIN estado e ON t.estadoturno_id = e.estadoid
+                INNER JOIN calendar c ON t.calendar_id = c.calendarid
+                INNER JOIN agenda a ON c.agendaid = a.agendaid
+                INNER JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                INNER JOIN persona p ON t.persona_id = p.personaid
+                INNER JOIN medicos m ON a.medico_id = m.medicoid
+                INNER JOIN persona med ON m.personaid = med.personaid
+                WHERE t.estadoturno_id IN (2,4)
+                ORDER BY c.fechaturno ASC, c.inicioturno ASC
             `);
+
+            console.log('Turnos filtrados:', turnos);
 
             res.render('turno/turnosSecretario', {
                 title: 'Gestión de Turnos',
                 user: req.session.user,
-                turnos: turnos
+                turnos: turnos,
+                moment: require('moment')
             });
+
         } catch (error) {
-            console.error(error);
+            console.error('Error completo:', error);
             res.status(500).send('Error al cargar los turnos');
         }
     },
@@ -260,9 +267,10 @@ const turnoController = {
 
     misTurnos: async (req, res) => {
         try {
-            if (req.session.user.idperfil !== 3) {
-                return res.redirect('/');
-            }
+            // Removemos la verificación de rol para permitir al admin
+            // if (req.session.user.idperfil !== 3) {
+            //     return res.redirect('/');
+            // }
 
             const [turnos] = await db.promise().query(`
                 SELECT t.*, e.tipo as estado_tipo,
@@ -320,11 +328,7 @@ const turnoController = {
                 return res.status(404).send('Turno no encontrado');
             }
 
-            const viewName = req.session.user.idperfil === 3 ? 
-                'turno/pacienteConfirmarTurno' : 
-                'turno/secretarioConfirmarTurno';
-
-            res.render(viewName, {
+            res.render('turno/secretarioConfirmarTurno', {
                 title: 'Confirmar Turno',
                 turno: turno[0],
                 user: req.session.user
@@ -423,73 +427,27 @@ const turnoController = {
 
     cancelarTurno: async (req, res) => {
         try {
-            const turnoId = req.params.id;
+            const { turnoId } = req.params;
             
-            // Verificar el estado actual del turno
-            const [turnoExistente] = await db.promise().query(`
-                SELECT t.estadoturno_id, t.persona_id, t.calendar_id,
-                       p.nombre as paciente_nombre,
-                       p.apellido as paciente_apellido,
-                       m.nombre as medico_nombre,
-                       m.apellido as medico_apellido,
-                       c.fechaturno, c.inicioturno,
-                       s.nombre_sucrsal as sucursal_nombre,
-                       s.direccion as sucursal_direccion
-                FROM turno t
-                JOIN persona p ON t.persona_id = p.personaid
-                JOIN calendar c ON t.calendar_id = c.calendarid
-                JOIN agenda a ON c.agendaid = a.agendaid
-                JOIN sucursal s ON a.sucursal_id = s.sucursalid
-                JOIN medicos med ON a.medico_id = med.medicoid
-                JOIN persona m ON med.personaid = m.personaid
-                WHERE t.turniid = ?
-            `, [turnoId]);
-
-            if (!turnoExistente.length) {
-                return res.status(404).json({ 
-                    success: false, 
-                    error: 'Turno no encontrado' 
-                });
-            }
-
-            // Verificar que el turno esté en estado válido para cancelar (2-Pendiente o 4-Confirmado)
-            if (![2, 4].includes(turnoExistente[0].estadoturno_id)) {
-                return res.status(400).json({ 
-                    success: false, 
-                    error: 'El turno no puede ser cancelado en su estado actual' 
-                });
-            }
-
-            // Actualizar el estado del turno a cancelado (3)
+            // Actualizar estado del turno a cancelado (3)
             await db.promise().query(`
                 UPDATE turno 
                 SET estadoturno_id = 3
                 WHERE turniid = ?
             `, [turnoId]);
 
-            // Enviar email de cancelación
-            const mailOptions = {
-                from: process.env.EMAIL_USER,
-                to: process.env.EMAIL_USER,
-                subject: 'Turno Médico Cancelado',
-                html: `
-                    <h1>Turno Cancelado</h1>
-                    <p>El turno ha sido cancelado:</p>
-                    <ul>
-                        <li>Paciente: ${turnoExistente[0].paciente_nombre} ${turnoExistente[0].paciente_apellido}</li>
-                        <li>Fecha: ${moment(turnoExistente[0].fechaturno).format('DD/MM/YYYY')}</li>
-                        <li>Hora: ${moment(turnoExistente[0].inicioturno, 'HH:mm:ss').format('HH:mm')}</li>
-                        <li>Médico: ${turnoExistente[0].medico_nombre} ${turnoExistente[0].medico_apellido}</li>
-                        <li>Sucursal: ${turnoExistente[0].sucursal_nombre}</li>
-                        <li>Dirección: ${turnoExistente[0].sucursal_direccion}</li>
-                    </ul>
-                `
-            };
+            // Liberar el calendar
+            const [turno] = await db.promise().query(
+                'SELECT calendar_id FROM turno WHERE turniid = ?', 
+                [turnoId]
+            );
 
-            try {
-                await transporter.sendMail(mailOptions);
-            } catch (emailError) {
-                console.error('Error al enviar email:', emailError);
+            if (turno.length) {
+                await db.promise().query(`
+                    UPDATE calendar 
+                    SET estado = 1
+                    WHERE calendarid = ?
+                `, [turno[0].calendar_id]);
             }
 
             res.json({ 
@@ -498,10 +456,10 @@ const turnoController = {
             });
 
         } catch (error) {
-            console.error('Error al cancelar el turno:', error);
+            console.error('Error al cancelar turno:', error);
             res.status(500).json({ 
                 success: false, 
-                error: 'Error al cancelar el turno' 
+                message: 'Error al cancelar el turno' 
             });
         }
     },
@@ -529,30 +487,20 @@ const turnoController = {
         try {
             const { sucursal, especialidad, medico } = req.body;
             
-            // Obtener información del médico
-            const [infoMedico] = await db.promise().query(`
-                SELECT p.nombre, p.apellido, e.nombre_esp, s.nombre_sucrsal
-                FROM medicos m
-                JOIN persona p ON m.personaid = p.personaid
-                JOIN especialidad e ON m.especialidadId = e.especialidadId
-                JOIN agenda a ON m.medicoid = a.medico_id
-                JOIN sucursal s ON a.sucursal_id = s.sucursalid
-                WHERE m.medicoid = ?
-                LIMIT 1
-            `, [medico]);
-
             // Obtener turnos disponibles
             const [turnosDisponibles] = await db.promise().query(`
                 SELECT c.calendarid, c.fechaturno, c.inicioturno, c.finalturno,
-                       a.nombreagenda, s.nombre_sucrsal,
+                       a.nombreagenda, s.nombre_sucrsal as sucursal_nombre,
                        p.nombre as medico_nombre, p.apellido as medico_apellido,
-                       e.nombre_esp as especialidad
+                       e.nombre_esp as especialidad,
+                       COALESCE(t.estadoturno_id, 1) as estado_turno
                 FROM calendar c
                 JOIN agenda a ON c.agendaid = a.agendaid
                 JOIN sucursal s ON a.sucursal_id = s.sucursalid
                 JOIN medicos m ON a.medico_id = m.medicoid
                 JOIN persona p ON m.personaid = p.personaid
                 JOIN especialidad e ON m.especialidadId = e.especialidadId
+                LEFT JOIN turno t ON c.calendarid = t.calendar_id
                 WHERE m.medicoid = ?
                 AND c.estado = 1
                 AND c.fechaturno >= CURDATE()
@@ -561,7 +509,7 @@ const turnoController = {
 
             // Agrupar turnos por fecha
             const turnosAgrupados = turnosDisponibles.reduce((acc, turno) => {
-                const fecha = moment(turno.fechaturno).format('YYYY-MM-DD');
+                const fecha = turno.fechaturno.toISOString().split('T')[0];
                 if (!acc[fecha]) {
                     acc[fecha] = [];
                 }
@@ -572,13 +520,78 @@ const turnoController = {
             res.render('turno/resultadosBusqueda', {
                 title: 'Turnos Disponibles',
                 turnosAgrupados,
-                medico: infoMedico[0],
-                user: req.session.user
+                user: req.session.user,
+                moment: require('moment')
             });
 
         } catch (error) {
             console.error('Error:', error);
             res.status(500).send('Error al procesar la búsqueda');
+        }
+    },
+
+    reservarTurnoPaciente: async (req, res) => {
+        try {
+            const { calendarId } = req.query;
+            const personaId = req.session.user.personaid;
+
+            // Crear turno en estado "Reservado" (2)
+            const [result] = await db.promise().query(`
+                INSERT INTO turno (calendar_id, persona_id, estadoturno_id, created_at)
+                VALUES (?, ?, 2, NOW())
+            `, [calendarId, personaId]);
+
+            // Actualizar estado del calendar a "Reservado" (2)
+            await db.promise().query(`
+                UPDATE calendar SET estado = 2 WHERE calendarid = ?
+            `, [calendarId]);
+
+            res.json({ success: true, turnoId: result.insertId });
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).json({ success: false });
+        }
+    },
+
+    confirmarTurnoSecretaria: async (req, res) => {
+        try {
+            console.log('Body recibido:', req.body);
+            console.log('TurnoId:', req.body.turnoId);
+            const { turnoId } = req.body;  // Asegúrate de recibir turnoId del body
+            
+            // Verificar que el turno exista y esté en estado reservado
+            const [turnoActual] = await db.promise().query(
+                'SELECT * FROM turno WHERE turniid = ? AND estadoturno_id = 2',
+                [turnoId]
+            );
+
+            if (!turnoActual.length) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Turno no encontrado o no está en estado reservado' 
+                });
+            }
+
+            // Actualizar el estado del turno
+            await db.promise().query(`
+                UPDATE turno 
+                SET estadoturno_id = 4,
+                    fecha_confirmacion = NOW()
+                WHERE turniid = ?
+            `, [turnoId]);
+
+            res.json({ 
+                success: true,
+                message: 'Turno confirmado exitosamente'
+            });
+
+        } catch (error) {
+            console.error('Error al confirmar turno:', error);
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error al confirmar el turno',
+                error: error.message 
+            });
         }
     }
 };

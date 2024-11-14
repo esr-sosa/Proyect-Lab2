@@ -14,5 +14,10 @@ router.use((req, res, next) => {
 router.get('/buscarAgenda', auth.isLoggedIn, auth.checkRole([1, 2, 3]), turnoController.buscarAgenda);
 router.post('/procesarBusquedaTurno', auth.isLoggedIn, auth.checkRole([1, 2, 3]), turnoController.procesarBusquedaTurno);
 router.post('/buscarTurnos', auth.isLoggedIn, auth.checkRole([1, 2, 3]), turnoController.buscarTurnos);
+router.post('/reservar-paciente', auth.isLoggedIn, auth.checkRole([3]), turnoController.reservarTurnoPaciente);
+router.post('/confirmar-secretaria', auth.isLoggedIn, auth.checkRole([1,2]), turnoController.confirmarTurnoSecretaria);
+router.post('/cancelar/:turnoId', auth.isLoggedIn, auth.checkRole([1,2]), turnoController.cancelarTurno);
+router.get('/secretario', auth.isLoggedIn, auth.checkRole([1,2]), turnoController.secretarioTurnos);
+router.get('/ver/:turnoId', auth.isLoggedIn, auth.checkRole([1,2,3]), turnoController.verTurno);
 
 module.exports = router; 

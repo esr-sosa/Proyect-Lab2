@@ -27,10 +27,14 @@ block content
                       td= turno.sucursal_nombre
                       td= turno.estado_tipo
                       td
-                        if user.idperfil === 1
+                        if user.idperfil === 1 || user.idperfil === 3
                           a.btn.btn-primary.btn-sm(href=`/turno/ver?id=${turno.turniid}`)
                             i.fas.fa-eye.me-1
                             | Ver
+                          if turno.estado_turno === 2
+                            button.btn.btn-success.btn-sm.ms-1(onclick=`confirmarTurnoSecretaria(${turno.calendarid})`)
+                              i.fas.fa-check-circle.me-1
+                              | Confirmar
                         else
                           a.btn.btn-success.btn-sm(href=`/turno/reservar?turnoId=${turno.turniid}&personaId=${user.personaid}`)
                             i.fas.fa-calendar-check.me-1

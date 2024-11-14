@@ -10,6 +10,8 @@ const adminRouter = require('./routes/admin');
 const secretariaRouter = require('./routes/secretaria');
 const turnoRouter = require('./routes/turno');
 const apiRoutes = require('./routes/apiRoutes');
+const sucursalRoutes = require('./routes/sucursal');
+const obraSocialRouter = require('./routes/obraSocial');
 const moment = require('moment');
 moment.locale('es');
 
@@ -54,6 +56,8 @@ app.use('/admin', adminRouter);
 app.use('/secretaria', secretariaRouter);
 app.use('/turno', turnoRouter);
 app.use('/api', apiRoutes);
+app.use('/sucursal', sucursalRoutes);
+app.use('/obraSocial', obraSocialRouter);
 
 // Configuración adicional para servir archivos estáticos
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
