@@ -86,11 +86,34 @@ async function reservarTurno(calendarId, personaId) {
         
         if (data.success) {
             Swal.fire({
-                title: 'Éxito',
-                text: 'Turno reservado correctamente',
-                icon: 'success'
-            }).then(() => {
-                window.location.href = '/turno/misTurnos';
+                title: 'Turno confirmado',
+                html: `
+                    <div class="text-start">
+                        <p class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>El turno ha sido reservado exitosamente</p>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Puede descargar el comprobante del turno haciendo clic en el botón de abajo
+                        </div>
+                    </div>`,
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonText: 'Descargar Comprobante',
+                cancelButtonText: 'Cerrar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const link = document.createElement('a');
+                    link.href = `/turno/comprobante/${data.turnoId}`;
+                    link.download = `turno-${data.turnoId}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    window.location.href = '/';
+                }
             });
         } else {
             Swal.fire({

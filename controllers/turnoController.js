@@ -201,10 +201,31 @@ const turnoController = {
                 WHERE calendarid = ?
             `, [calendarId]);
 
+            const [turnoInfo] = await db.promise().query(`
+                SELECT 
+                    t.*,
+                    c.fechaturno,
+                    c.inicioturno,
+                    m.medicoid,
+                    p.nombre as medico_nombre,
+                    p.apellido as medico_apellido,
+                    e.nombre_esp as especialidad,
+                    s.nombre_sucrsal
+                FROM turno t
+                JOIN calendar c ON t.calendar_id = c.calendarid
+                JOIN agenda a ON c.agendaid = a.agendaid
+                JOIN medicos m ON a.medico_id = m.medicoid
+                JOIN persona p ON m.personaid = p.personaid
+                JOIN especialidad e ON m.especialidadId = e.especialidadId
+                JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                WHERE t.turniid = ?
+            `, [result.insertId]);
+
             res.json({
                 success: true,
-                message: 'Turno confirmado exitosamente',
-                turnoId: result.insertId
+                turnoId: result.insertId,
+                message: 'Turno reservado exitosamente',
+                turnoInfo: turnoInfo[0]
             });
 
         } catch (error) {
@@ -653,6 +674,76 @@ const turnoController = {
                 message: 'Error al confirmar el turno',
                 error: error.message 
             });
+        }
+    },
+
+    generarComprobantePDF: async (req, res) => {
+        try {
+            const turnoId = req.params.id;
+            
+            // Obtener datos del turno
+            const [turno] = await db.promise().query(`
+                SELECT 
+                    t.*,
+                    c.fechaturno,
+                    c.inicioturno,
+                    p_pac.nombre as paciente_nombre,
+                    p_pac.apellido as paciente_apellido,
+                    p_pac.dni as paciente_dni,
+                    p_med.nombre as medico_nombre,
+                    p_med.apellido as medico_apellido,
+                    e.nombre_esp as especialidad,
+                    s.nombre_sucrsal,
+                    s.direccion as sucursal_direccion
+                FROM turno t
+                JOIN calendar c ON t.calendar_id = c.calendarid
+                JOIN agenda a ON c.agendaid = a.agendaid
+                JOIN persona p_pac ON t.persona_id = p_pac.personaid
+                JOIN medicos m ON a.medico_id = m.medicoid
+                JOIN persona p_med ON m.personaid = p_med.personaid
+                JOIN especialidad e ON m.especialidadId = e.especialidadId
+                JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                WHERE t.turniid = ?
+            `, [turnoId]);
+
+            if (!turno.length) {
+                return res.status(404).send('Turno no encontrado');
+            }
+
+            const PDFDocument = require('pdfkit');
+            const doc = new PDFDocument();
+
+            // Configurar respuesta HTTP
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename=turno-${turnoId}.pdf`);
+            doc.pipe(res);
+
+            // Diseñar el PDF
+            doc.fontSize(20).text('Comprobante de Turno', { align: 'center' });
+            doc.moveDown();
+            doc.fontSize(12);
+
+            // Datos del turno
+            doc.text(`Paciente: ${turno[0].paciente_nombre} ${turno[0].paciente_apellido}`);
+            doc.text(`DNI: ${turno[0].paciente_dni}`);
+            doc.moveDown();
+            doc.text(`Especialidad: ${turno[0].especialidad}`);
+            doc.text(`Médico: Dr/a. ${turno[0].medico_nombre} ${turno[0].medico_apellido}`);
+            doc.moveDown();
+            doc.text(`Fecha: ${moment(turno[0].fechaturno).format('DD/MM/YYYY')}`);
+            doc.text(`Hora: ${moment(turno[0].inicioturno, 'HH:mm:ss').format('HH:mm')} hs`);
+            doc.moveDown();
+            doc.text(`Lugar: ${turno[0].nombre_sucrsal}`);
+            doc.text(`Dirección: ${turno[0].sucursal_direccion}`);
+            
+            doc.moveDown();
+            doc.fontSize(10).text('Por favor, presentarse 10 minutos antes del horario del turno', { align: 'center' });
+
+            doc.end();
+
+        } catch (error) {
+            console.error('Error al generar PDF:', error);
+            res.status(500).send('Error al generar el comprobante');
         }
     }
 };

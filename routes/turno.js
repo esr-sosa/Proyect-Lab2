@@ -20,5 +20,7 @@ router.post('/cancelar/:turnoId', auth.isLoggedIn, auth.checkRole([1,2]), turnoC
 router.get('/secretario', auth.isLoggedIn, auth.checkRole([1,2]), turnoController.secretarioTurnos);
 router.get('/ver/:turnoId', auth.isLoggedIn, auth.checkRole([1,2,3]), turnoController.verTurno);
 router.post('/reservar', turnoController.reservarTurno);
+router.get('/turno/comprobante/:id', turnoController.generarComprobantePDF);
+router.get('/comprobante/:id', turnoController.generarComprobantePDF);
 
 module.exports = router; 
