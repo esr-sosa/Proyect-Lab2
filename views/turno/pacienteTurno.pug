@@ -7,15 +7,13 @@ block content
       .col-md-12
         .card
           .card-body
-            h4.text-center Buscar turnos
-            form#turnoForm(action="/turno/procesarBusquedaTurno", method="POST")
+            h4.text-center Reservar turno
+            form#turnoForm(action="/turno/buscarTurnosPaciente", method="POST")
               .form-group
                 .mb-3
                   label.form-label(for="paciente") Paciente
-                  select#paciente.form-control(name="paciente" required)
-                    option(value='') Seleccione un paciente
-                    each paciente in pacientes
-                      option(value=paciente.personaid)= `${paciente.apellido}, ${paciente.nombre} - DNI: ${paciente.dni}`
+                  select#paciente.form-control(name="paciente" required disabled)
+                    option(value=user.personaid selected)= `${user.apellido}, ${user.nombre} - DNI: ${user.dni}`
                 
                 .mb-3
                   label.form-label(for="sucursal") Sucursal

@@ -816,6 +816,93 @@ const turnoController = {
             console.error('Error al generar PDF:', error);
             res.status(500).send('Error al generar el comprobante');
         }
+    },
+
+    buscarAgendaPaciente: async (req, res) => {
+        try {
+            const [sucursales] = await db.promise().query(`
+                SELECT sucursalid, nombre_sucrsal 
+                FROM sucursal 
+                WHERE estado = 1
+            `);
+            
+            res.render('turno/pacienteTurno', {
+                title: 'Solicitar Turno',
+                sucursales: sucursales,
+                user: req.session.user
+            });
+        } catch (error) {
+            console.error('Error en buscarAgendaPaciente:', error);
+            res.status(500).send('Error al cargar la página de búsqueda');
+        }
+    },
+
+    buscarTurnosPaciente: async (req, res) => {
+        try {
+            const { sucursal, especialidad, medico } = req.body;
+            
+            // Obtener información del médico y sus turnos disponibles
+            const [infoMedico] = await db.promise().query(`
+                SELECT 
+                    p.nombre, 
+                    p.apellido, 
+                    e.nombre_esp, 
+                    s.nombre_sucrsal,
+                    a.agendaid
+                FROM medicos m
+                JOIN persona p ON m.personaid = p.personaid
+                JOIN especialidad e ON m.especialidadId = e.especialidadId
+                JOIN agenda a ON m.medicoid = a.medico_id
+                JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                WHERE m.medicoid = ?
+                LIMIT 1
+            `, [medico]);
+
+            // Obtener turnos disponibles
+            const [turnos] = await db.promise().query(`
+                SELECT 
+                    c.calendarid,
+                    c.fechaturno,
+                    c.inicioturno,
+                    c.finalturno,
+                    p.nombre as medico_nombre,
+                    p.apellido as medico_apellido,
+                    e.nombre_esp as especialidad,
+                    s.nombre_sucrsal as sucursal_nombre,
+                    1 as estado_turno
+                FROM calendar c
+                JOIN agenda a ON c.agendaid = a.agendaid
+                JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                JOIN medicos m ON a.medico_id = m.medicoid
+                JOIN persona p ON m.personaid = p.personaid
+                JOIN especialidad e ON m.especialidadId = e.especialidadId
+                WHERE m.medicoid = ?
+                AND c.estado = 1
+                AND c.fechaturno >= CURDATE()
+                ORDER BY c.fechaturno, c.inicioturno
+            `, [medico]);
+
+            // Agrupar turnos por fecha
+            const turnosAgrupados = turnos.reduce((acc, turno) => {
+                const fecha = moment(turno.fechaturno).format('YYYY-MM-DD');
+                if (!acc[fecha]) {
+                    acc[fecha] = [];
+                }
+                acc[fecha].push(turno);
+                return acc;
+            }, {});
+
+            res.render('turno/resultadosBusqueda', {
+                title: 'Turnos Disponibles',
+                turnosAgrupados,
+                pacienteId: req.session.user.personaid,
+                user: req.session.user
+            });
+
+        } catch (error) {
+            console.error('Error en buscarTurnosPaciente:', error);
+            res.status(500).send('Error al buscar turnos disponibles');
+        }
     }
 };
 
