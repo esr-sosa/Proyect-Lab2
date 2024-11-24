@@ -213,24 +213,48 @@ input[type="file"].form-control {
 
 /* Login styles */
 .login-card {
-  max-width: 400px;
-  margin: 2rem auto;
+  max-width: 400px !important;
+  width: 90%;
+  margin: 4rem auto !important;
+  padding: 2rem;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
+.login-card .card-title {
+  text-align: center;
+  font-size: 1.8rem;
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+}
+
+.login-card .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.login-card .form-control {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.login-card .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.login-card .form-actions {
   margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
-.form-actions button,
-.form-actions a {
-  flex: 1;
+.login-card .btn {
+  min-width: 120px;
   justify-content: center;
 }
 
@@ -928,10 +952,13 @@ input[type="file"].form-control {
 .card.card-form,
 .form-register,
 .card:not(.card-table) {
-  max-width: 600px;  /* Aumentado de ~400px */
-  width: 90%;
-  margin: 2rem auto;
+  max-width: 1000px;
+  width: 100%;
+  margin: 1rem auto;
   padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .form-group {

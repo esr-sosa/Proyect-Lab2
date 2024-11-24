@@ -106,8 +106,23 @@ router.post('/login', async (req, res) => {
 });
 
 // Ruta para la página de registro
-router.get('/register', (req, res) => {
-  res.render('register', { title: 'Registrar', error: null });
+router.get('/register', async (req, res) => {
+  try {
+    const [obras_sociales] = await db.promise().query('SELECT * FROM obra_social WHERE estado = 1');
+    
+    res.render('register', { 
+      title: 'Registrar', 
+      error: null,
+      obras_sociales: obras_sociales
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.render('register', { 
+      title: 'Registrar', 
+      error: 'Error al cargar el formulario de registro',
+      obras_sociales: []
+    });
+  }
 });
 
 router.post('/register', upload.single('foto_dni'), async (req, res) => {

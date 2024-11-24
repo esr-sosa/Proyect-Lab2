@@ -249,22 +249,27 @@
 
 .container-fluid {
     padding: 20px;
-    height: calc(100vh - 80px);
-    overflow-y: auto;
+    min-height: calc(100vh - 80px);
+    overflow: visible;
     position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .card {
-    height: 100%;
+    margin: 20px auto;
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px;
+    width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .card-body {
     flex: 1;
-    overflow-y: auto;
-    min-height: 0;
+    overflow: visible;
+    padding: 2rem;
 }
 
 #calendario {
@@ -293,4 +298,38 @@
 }
 .fc-highlight {
   background-color: rgba(40, 167, 69, 0.2) !important;
+}
+
+/* Ajustes para la tabla */
+.table-container {
+    overflow-x: auto;
+    margin: 0;
+    padding: 1rem;
+    width: 100%;
+}
+
+.table {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Ajustes para los botones de acción */
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+/* Ajuste para el responsive */
+@media (max-width: 768px) {
+    .table-container {
+        margin: 0.5rem -15px;
+        padding: 0 15px;
+    }
+    
+    .table td, .table th {
+        padding: 0.5rem;
+    }
 }
