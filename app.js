@@ -12,6 +12,8 @@ const turnoRouter = require('./routes/turno');
 const apiRoutes = require('./routes/apiRoutes');
 const sucursalRoutes = require('./routes/sucursal');
 const obraSocialRouter = require('./routes/obraSocial');
+require('dotenv').config();
+
 const moment = require('moment');
 moment.locale('es');
 
@@ -19,10 +21,17 @@ const app = express();
 
 // Configuración de sesión
 app.use(session({
-  secret: 'perro',
+  secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 horas
+  },
+  name: 'sessionId'
 }));
+
 
 // Middleware para hacer el usuario disponible en todas las vistas
 app.use((req, res, next) => {
