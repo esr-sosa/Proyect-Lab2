@@ -21,7 +21,7 @@ const app = express();
 
 // Configuración de sesión
 app.use(session({
-  secret: process.env.SESSION_SECRET,'contraseña'
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
