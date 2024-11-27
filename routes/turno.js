@@ -24,5 +24,7 @@ router.get('/turno/comprobante/:id', turnoController.generarComprobantePDF);
 router.get('/comprobante/:id', turnoController.generarComprobantePDF);
 router.get('/paciente', turnoController.buscarAgendaPaciente);
 router.post('/buscarTurnosPaciente', turnoController.buscarTurnosPaciente);
+router.post('/sobreturno/verificar', auth.isLoggedIn, auth.checkRole([3]), turnoController.verificarDisponibilidadSobreturno);
+router.post('/sobreturno/crear', auth.isLoggedIn, auth.checkRole([3]), turnoController.crearSobreturno);
 
 module.exports = router; 

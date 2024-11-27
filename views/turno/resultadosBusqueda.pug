@@ -50,6 +50,38 @@ block content
                                       button.btn.btn-primary.btn-sm(onclick=`reservarTurno(${turno.calendarid}, ${pacienteId})`)
                                         i.fas.fa-calendar-check.me-1
                                         | Confirmar Reserva
+                        
+                        if user && user.idperfil === 3
+                          .row.mt-3
+                            .col-12
+                              button.btn.btn-warning.btn-sobreturno(
+                                data-fecha=fecha 
+                                data-medico-id=turnos[0].medicoid
+                                data-medico-nombre=`${turnos[0].medico_nombre} ${turnos[0].medico_apellido}`
+                                data-paciente-id=pacienteId
+                                type="button"
+                              )
+                                i.fas.fa-plus-circle.me-1
+                                | Crear Sobreturno
+
+    #modalSobreturno.modal.fade(tabindex='-1' data-paciente-id=pacienteId)
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h5.modal-title Crear Sobreturno
+            button.btn-close(data-bs-dismiss='modal')
+          .modal-body
+            .mb-3
+              label.form-label Espacios disponibles
+              select#espacioSobreturno.form-control
+                option(value='') Seleccione un horario
+            .mb-3
+              label.form-label Motivo
+              textarea#motivoSobreturno.form-control(rows=3)
+          .modal-footer
+            button.btn.btn-secondary(data-bs-dismiss='modal') Cancelar
+            button#btnConfirmarSobreturno.btn.btn-primary Confirmar
 
 block scripts
   script(src="/js/turno/reserva.js")
+  script(src="/js/turno/sobreturno.js")

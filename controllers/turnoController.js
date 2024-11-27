@@ -276,6 +276,7 @@ const turnoController = {
             // Obtener información del médico y sus turnos disponibles
             const [infoMedico] = await db.promise().query(`
                 SELECT 
+                    m.medicoid,
                     p.nombre, 
                     p.apellido, 
                     e.nombre_esp, 
@@ -541,22 +542,26 @@ const turnoController = {
             const { sucursal, especialidad, medico, paciente } = req.body;
             
             const [turnos] = await db.promise().query(`
-                SELECT c.calendarid, c.fechaturno, c.inicioturno, c.finalturno,
-                       a.nombreagenda, s.nombre_sucrsal as sucursal_nombre,
-                       p.nombre as medico_nombre, p.apellido as medico_apellido,
-                       e.nombre_esp as especialidad,
-                       COALESCE(t.estadoturno_id, 1) as estado_turno
+                SELECT DISTINCT
+                    c.calendarid,
+                    c.fechaturno,
+                    c.inicioturno,
+                    c.finalturno,
+                    m.medicoid,
+                    p.nombre as medico_nombre,
+                    p.apellido as medico_apellido,
+                    e.nombre_esp as especialidad,
+                    s.nombre_sucrsal as sucursal_nombre,
+                    c.estado as estado_turno
                 FROM calendar c
                 JOIN agenda a ON c.agendaid = a.agendaid
-                JOIN sucursal s ON a.sucursal_id = s.sucursalid
                 JOIN medicos m ON a.medico_id = m.medicoid
                 JOIN persona p ON m.personaid = p.personaid
                 JOIN especialidad e ON m.especialidadId = e.especialidadId
-                LEFT JOIN turno t ON c.calendarid = t.calendar_id
+                JOIN sucursal s ON a.sucursal_id = s.sucursalid
                 WHERE m.medicoid = ?
-                AND c.estado = 1
-                AND c.fechaturno >= CURDATE()
-                ORDER BY c.fechaturno, c.inicioturno
+                AND c.estado IN (1, 2)
+                ORDER BY c.fechaturno ASC, c.inicioturno ASC
             `, [medico]);
 
             // Agrupar turnos por fecha
@@ -572,14 +577,15 @@ const turnoController = {
             res.render('turno/resultadosBusqueda', {
                 title: 'Turnos Disponibles',
                 turnosAgrupados,
-                pacienteId: paciente,
+                turnos: turnos,
                 user: req.session.user,
-                moment: require('moment')
+                moment,
+                pacienteId: paciente
             });
 
         } catch (error) {
-            console.error('Error:', error);
-            res.status(500).send('Error al procesar la búsqueda');
+            console.error('Error en procesarBusquedaTurno:', error);
+            res.status(500).send('Error al buscar turnos disponibles');
         }
     },
 
@@ -860,27 +866,33 @@ const turnoController = {
 
             // Obtener turnos disponibles
             const [turnos] = await db.promise().query(`
-                SELECT 
-                    c.calendarid,
-                    c.fechaturno,
-                    c.inicioturno,
-                    c.finalturno,
+                SELECT DISTINCT
+                    m.medicoid,
                     p.nombre as medico_nombre,
                     p.apellido as medico_apellido,
-                    e.nombre_esp as especialidad,
+                    c.inicioturno,
+                    c.finalturno,
+                    e.nombre_esp,
                     s.nombre_sucrsal as sucursal_nombre,
-                    1 as estado_turno
                 FROM calendar c
                 JOIN agenda a ON c.agendaid = a.agendaid
-                JOIN sucursal s ON a.sucursal_id = s.sucursalid
                 JOIN medicos m ON a.medico_id = m.medicoid
                 JOIN persona p ON m.personaid = p.personaid
                 JOIN especialidad e ON m.especialidadId = e.especialidadId
-                WHERE m.medicoid = ?
-                AND c.estado = 1
-                AND c.fechaturno >= CURDATE()
-                ORDER BY c.fechaturno, c.inicioturno
-            `, [medico]);
+                JOIN sucursal s ON a.sucursal_id = s.sucursalid
+                WHERE a.medico_id = ? AND c.estado = 1
+                AND DATE(c.fechaturno) = ?
+                AND c.estado IN (1, 2)
+                ORDER BY c.inicioturno ASC
+            `, [medico, fecha]);
+
+            // Agregar log para debug
+            console.log('Datos para la vista:', {
+                userPerfil: req.session.user.idperfil,
+                turnos: turnos,
+                primerTurno: turnos[0],
+                medicoid: turnos[0]?.medicoid
+            });
 
             // Agrupar turnos por fecha
             const turnosAgrupados = turnos.reduce((acc, turno) => {
@@ -895,13 +907,153 @@ const turnoController = {
             res.render('turno/resultadosBusqueda', {
                 title: 'Turnos Disponibles',
                 turnosAgrupados,
-                pacienteId: req.session.user.personaid,
-                user: req.session.user
+                turnos: turnos,  // Asegurarnos de pasar los turnos a la vista
+                user: req.session.user,
+                moment,
+                pacienteId: req.session.user.personaid
             });
 
         } catch (error) {
             console.error('Error en buscarTurnosPaciente:', error);
             res.status(500).send('Error al buscar turnos disponibles');
+        }
+    },
+
+    verificarDisponibilidadSobreturno: async (req, res) => {
+        try {
+            const { fecha, medicoId } = req.body;
+            console.log('1. Iniciando verificación:', { fecha, medicoId });
+
+            // Obtener turnos del día y verificar cuáles están disponibles
+            const [turnosDelDia] = await db.promise().query(`
+                SELECT 
+                    c.calendarid,
+                    TIME_FORMAT(c.inicioturno, '%H:%i:%s') as inicioturno,
+                    TIME_FORMAT(c.finalturno, '%H:%i:%s') as finalturno,
+                    t.turniid
+                FROM calendar c
+                JOIN agenda a ON c.agendaid = a.agendaid
+                LEFT JOIN turno t ON c.calendarid = t.calendar_id
+                WHERE a.medico_id = ?
+                AND DATE(c.fechaturno) = ?
+                AND c.estado IN (1, 2)
+                ORDER BY c.inicioturno ASC
+            `, [medicoId, fecha]);
+
+            console.log('2. Turnos del día encontrados:', turnosDelDia);
+
+            // Obtener la duración de la agenda
+            const [agendaInfo] = await db.promise().query(`
+                SELECT duracion
+                FROM agenda
+                WHERE medico_id = ?
+                AND estado = 1
+                LIMIT 1
+            `, [medicoId]);
+
+            if (!agendaInfo.length) {
+                return res.json({
+                    success: false,
+                    message: 'No se encontró la agenda del médico'
+                });
+            }
+
+            const duracionSobreturno = Math.floor(agendaInfo[0].duracion / 2);
+            const espaciosDisponibles = [];
+
+            // Buscar turnos sin reservar
+            for (let i = 0; i < turnosDelDia.length; i++) {
+                const turno = turnosDelDia[i];
+                
+                // Si el turno no está reservado (no tiene turniid), podemos usar su espacio
+                if (!turno.turniid) {
+                    espaciosDisponibles.push({
+                        horaInicio: turno.inicioturno,
+                        horaFin: moment(turno.inicioturno, 'HH:mm:ss')
+                            .add(duracionSobreturno, 'minutes')
+                            .format('HH:mm:ss')
+                    });
+                }
+            }
+
+            console.log('3. Espacios disponibles encontrados:', espaciosDisponibles);
+
+            res.json({
+                success: true,
+                espaciosDisponibles,
+                message: espaciosDisponibles.length ? '' : 'No hay espacios disponibles para sobreturnos en este día'
+            });
+
+        } catch (error) {
+            console.error('Error en verificarDisponibilidadSobreturno:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error al verificar disponibilidad'
+            });
+        }
+    },
+
+    crearSobreturno: async (req, res) => {
+        try {
+            const { medicoId, fecha, horaInicio, motivo, personaId } = req.body;
+            
+            if (!personaId) {
+                return res.json({
+                    success: false,
+                    message: 'Debe seleccionar un paciente'
+                });
+            }
+
+            // Obtener el calendar_id del turno disponible
+            const [turnoDisponible] = await db.promise().query(`
+                SELECT c.calendarid
+                FROM calendar c
+                JOIN agenda a ON c.agendaid = a.agendaid
+                LEFT JOIN turno t ON c.calendarid = t.calendar_id
+                WHERE a.medico_id = ?
+                AND DATE(c.fechaturno) = ?
+                AND TIME(c.inicioturno) = ?
+                AND t.turniid IS NULL
+            `, [medicoId, fecha, horaInicio]);
+
+            if (!turnoDisponible.length) {
+                return res.json({
+                    success: false,
+                    message: 'El turno ya no está disponible'
+                });
+            }
+
+            // Crear el sobreturno
+            const [result] = await db.promise().query(`
+                INSERT INTO turno (
+                    calendar_id,
+                    persona_id,
+                    estadoturno_id,
+                    motivoSobreturno,
+                    esSobreturno,
+                    fecha,
+                    hora
+                )
+                VALUES (?, ?, ?, ?, 1, ?, ?)
+            `, [
+                turnoDisponible[0].calendarid,
+                personaId,
+                2,
+                motivo,
+                fecha,
+                horaInicio
+            ]);
+
+            res.json({
+                success: true,
+                message: 'Sobreturno creado exitosamente'
+            });
+        } catch (error) {
+            console.error('Error en crearSobreturno:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error al crear el sobreturno'
+            });
         }
     }
 };
