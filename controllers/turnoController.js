@@ -922,71 +922,75 @@ const turnoController = {
     verificarDisponibilidadSobreturno: async (req, res) => {
         try {
             const { fecha, medicoId } = req.body;
-            console.log('1. Iniciando verificación:', { fecha, medicoId });
+            
+            // 1. Verificar si hay turnos regulares para ese día
+            const [turnosRegulares] = await db.promise().query(`
+                SELECT c.finalturno, c.inicioturno, c.estado
+                FROM calendar c
+                JOIN agenda a ON c.agendaid = a.agendaid
+                WHERE a.medico_id = ?
+                AND DATE(c.fechaturno) = ?
+                AND c.es_sobreturno = 0
+                ORDER BY c.finalturno DESC
+                LIMIT 1
+            `, [medicoId, fecha]);
 
-            // Obtener turnos del día y verificar cuáles están disponibles
-            const [turnosDelDia] = await db.promise().query(`
-                SELECT 
-                    c.calendarid,
-                    TIME_FORMAT(c.inicioturno, '%H:%i:%s') as inicioturno,
-                    TIME_FORMAT(c.finalturno, '%H:%i:%s') as finalturno,
-                    t.turniid
+            if (turnosRegulares.length === 0) {
+                return res.json({
+                    success: false,
+                    message: 'No hay turnos configurados para este día'
+                });
+            }
+
+            // 2. Verificar si hay turnos disponibles
+            const [turnosDisponibles] = await db.promise().query(`
+                SELECT COUNT(*) as total
                 FROM calendar c
                 JOIN agenda a ON c.agendaid = a.agendaid
                 LEFT JOIN turno t ON c.calendarid = t.calendar_id
                 WHERE a.medico_id = ?
                 AND DATE(c.fechaturno) = ?
-                AND c.estado IN (1, 2)
-                ORDER BY c.inicioturno ASC
+                AND c.es_sobreturno = 0
+                AND c.estado = 1
+                AND t.turniid IS NULL
             `, [medicoId, fecha]);
 
-            console.log('2. Turnos del día encontrados:', turnosDelDia);
-
-            // Obtener la duración de la agenda
-            const [agendaInfo] = await db.promise().query(`
-                SELECT duracion
-                FROM agenda
-                WHERE medico_id = ?
-                AND estado = 1
-                LIMIT 1
-            `, [medicoId]);
-
-            if (!agendaInfo.length) {
+            if (turnosDisponibles[0].total > 0) {
                 return res.json({
                     success: false,
-                    message: 'No se encontró la agenda del médico'
+                    message: 'Aún hay turnos regulares disponibles'
                 });
             }
 
-            const duracionSobreturno = Math.floor(agendaInfo[0].duracion / 2);
-            const espaciosDisponibles = [];
+            // 3. Verificar cantidad de sobreturnos
+            const [cantidadSobreturnos] = await db.promise().query(`
+                SELECT COUNT(*) as total
+                FROM calendar c
+                JOIN agenda a ON c.agendaid = a.agendaid
+                JOIN turno t ON c.calendarid = t.calendar_id
+                WHERE a.medico_id = ?
+                AND DATE(c.fechaturno) = ?
+                AND t.esSobreturno = 1
+                AND t.estadoturno_id = 4
+            `, [medicoId, fecha]);
 
-            // Buscar turnos sin reservar
-            for (let i = 0; i < turnosDelDia.length; i++) {
-                const turno = turnosDelDia[i];
-                
-                // Si el turno no está reservado (no tiene turniid), podemos usar su espacio
-                if (!turno.turniid) {
-                    espaciosDisponibles.push({
-                        horaInicio: turno.inicioturno,
-                        horaFin: moment(turno.inicioturno, 'HH:mm:ss')
-                            .add(duracionSobreturno, 'minutes')
-                            .format('HH:mm:ss')
-                    });
-                }
+            if (cantidadSobreturnos[0].total >= 3) {
+                return res.json({
+                    success: false,
+                    message: 'Ya se alcanzó el límite máximo de 3 sobreturnos para este día'
+                });
             }
 
-            console.log('3. Espacios disponibles encontrados:', espaciosDisponibles);
-
-            res.json({
+            return res.json({
                 success: true,
-                espaciosDisponibles,
-                message: espaciosDisponibles.length ? '' : 'No hay espacios disponibles para sobreturnos en este día'
+                horarioSobreturno: moment(turnosRegulares[0].finalturno, 'HH:mm:ss')
+                    .format('HH:mm'),
+                message: 'Disponible para sobreturno'
             });
 
         } catch (error) {
-            console.error('Error en verificarDisponibilidadSobreturno:', error);
-            res.status(500).json({
+            console.error('Error:', error);
+            return res.status(500).json({
                 success: false,
                 message: 'Error al verificar disponibilidad'
             });
@@ -996,61 +1000,71 @@ const turnoController = {
     crearSobreturno: async (req, res) => {
         try {
             const { medicoId, fecha, horaInicio, motivo, personaId } = req.body;
-            
-            if (!personaId) {
-                return res.json({
-                    success: false,
-                    message: 'Debe seleccionar un paciente'
-                });
-            }
 
-            // Obtener el calendar_id del turno disponible
-            const [turnoDisponible] = await db.promise().query(`
-                SELECT c.calendarid
-                FROM calendar c
-                JOIN agenda a ON c.agendaid = a.agendaid
-                LEFT JOIN turno t ON c.calendarid = t.calendar_id
+            // 1. Obtener agenda
+            const [agenda] = await db.promise().query(`
+                SELECT a.agendaid
+                FROM agenda a
                 WHERE a.medico_id = ?
-                AND DATE(c.fechaturno) = ?
-                AND TIME(c.inicioturno) = ?
-                AND t.turniid IS NULL
-            `, [medicoId, fecha, horaInicio]);
+                AND a.estado = 1
+                ORDER BY a.createdAt DESC
+                LIMIT 1
+            `, [medicoId]);
 
-            if (!turnoDisponible.length) {
+            if (!agenda.length) {
                 return res.json({
                     success: false,
-                    message: 'El turno ya no está disponible'
+                    message: 'No se encontró una agenda activa'
                 });
             }
 
-            // Crear el sobreturno
-            const [result] = await db.promise().query(`
+            // 2. Crear registro en calendar
+            const horaFin = moment(horaInicio, 'HH:mm:ss')
+                .add(15, 'minutes')
+                .format('HH:mm:ss');
+
+            const [calendar] = await db.promise().query(`
+                INSERT INTO calendar 
+                (agendaid, fechaturno, inicioturno, finalturno, estado, createdAt, updateAt, es_sobreturno)
+                VALUES (?, ?, ?, ?, 1, NOW(), NOW(), 1)
+            `, [
+                agenda[0].agendaid,
+                fecha,
+                horaInicio,
+                horaFin
+            ]);
+
+            // 3. Crear el turno
+            await db.promise().query(`
                 INSERT INTO turno (
                     calendar_id,
                     persona_id,
                     estadoturno_id,
+                    fecha,
+                    hora,
                     motivoSobreturno,
                     esSobreturno,
-                    fecha,
-                    hora
-                )
-                VALUES (?, ?, ?, ?, 1, ?, ?)
+                    observaciones,
+                    fecha_confirmacion
+                ) VALUES (?, ?, ?, ?, ?, ?, 1, ?, NOW())
             `, [
-                turnoDisponible[0].calendarid,
+                calendar.insertId,
                 personaId,
-                2,
-                motivo,
+                4,
                 fecha,
-                horaInicio
+                horaInicio,
+                motivo,
+                motivo
             ]);
 
-            res.json({
+            return res.json({
                 success: true,
                 message: 'Sobreturno creado exitosamente'
             });
+
         } catch (error) {
-            console.error('Error en crearSobreturno:', error);
-            res.status(500).json({
+            console.error('Error al crear sobreturno:', error);
+            return res.status(500).json({
                 success: false,
                 message: 'Error al crear el sobreturno'
             });

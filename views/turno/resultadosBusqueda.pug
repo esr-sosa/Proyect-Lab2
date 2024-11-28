@@ -71,13 +71,18 @@ block content
             h5.modal-title Crear Sobreturno
             button.btn-close(data-bs-dismiss='modal')
           .modal-body
+            .alert.alert-info
+              i.fas.fa-info-circle.me-2
+              | Los sobreturnos solo están disponibles cuando todos los turnos regulares están ocupados.
             .mb-3
-              label.form-label Espacios disponibles
-              select#espacioSobreturno.form-control
-                option(value='') Seleccione un horario
+              label.form-label Horario disponible
+              input#horarioSobreturno.form-control(type='text' readonly)
+            .mb-3
+              label.form-label Duración
+              input.form-control(type='text' value='15 minutos' readonly)
             .mb-3
               label.form-label Motivo
-              textarea#motivoSobreturno.form-control(rows=3)
+              textarea#motivoSobreturno.form-control(rows=3 placeholder='Ingrese el motivo del sobreturno')
           .modal-footer
             button.btn.btn-secondary(data-bs-dismiss='modal') Cancelar
             button#btnConfirmarSobreturno.btn.btn-primary Confirmar
