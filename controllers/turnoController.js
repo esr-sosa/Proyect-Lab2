@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const moment = require('moment');
 const nodemailer = require('nodemailer');
+const cacheWrapper = require('../config/cache');
 
 const transporter = require("../config/mailer").transporter;
 
@@ -125,7 +126,7 @@ const turnoController = {
                 INNER JOIN medicos m ON a.medico_id = m.medicoid
                 INNER JOIN persona med ON m.personaid = med.personaid
                 WHERE t.estadoturno_id IN (2,4)
-                ORDER BY c.fechaturno ASC, c.inicioturno ASC
+                ORDER BY c.fechaturno DESC, c.inicioturno DESC
             `);
 
             console.log('Turnos filtrados:', turnos);
@@ -240,26 +241,38 @@ const turnoController = {
 
     buscarAgenda: async (req, res) => {
         try {
-            // Obtener datos necesarios para las vistas
-            const [sucursales] = await db.promise().query(`
-                SELECT sucursalid, nombre_sucrsal 
-                FROM sucursal 
-                WHERE estado = 1
-            `);
+            // Obtener sucursales con caché
+            const sucursales = await cacheWrapper.getOrSet(
+                'sucursales_activas',
+                async () => {
+                    const [result] = await db.promise().query(`
+                        SELECT sucursalid, nombre_sucrsal 
+                        FROM sucursal 
+                        WHERE estado = 1
+                    `);
+                    return result;
+                }
+            );
             
-            // Agregar consulta para obtener pacientes
-            const [pacientes] = await db.promise().query(`
-                SELECT p.personaid, p.nombre, p.apellido, p.dni 
-                FROM persona p
-                JOIN user u ON p.userid = u.userid
-                WHERE u.idperfil = 4
-                ORDER BY p.apellido, p.nombre
-            `);
+            // Obtener pacientes con caché
+            const pacientes = await cacheWrapper.getOrSet(
+                'pacientes_activos',
+                async () => {
+                    const [result] = await db.promise().query(`
+                        SELECT p.personaid, p.nombre, p.apellido, p.dni 
+                        FROM persona p
+                        JOIN user u ON p.userid = u.userid
+                        WHERE u.idperfil = 4
+                        ORDER BY p.apellido, p.nombre
+                    `);
+                    return result;
+                }
+            );
 
             return res.render('turno/secretarioBuscarAgenda', {
                 title: 'Buscar Turnos',
-                sucursales: sucursales,
-                pacientes: pacientes,
+                sucursales,
+                pacientes,
                 user: req.session.user
             });
 
@@ -1086,6 +1099,9 @@ const turnoController = {
                 motivo
             ]);
 
+            // Invalidar caché relacionado
+            cacheWrapper.invalidate('turnos_medico_' + medicoId);
+            
             return res.json({
                 success: true,
                 message: 'Sobreturno creado exitosamente'

@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const moment = require('moment');
+const cacheWrapper = require('../config/cache');
 
 const agendaController = {
     listarAgenda: async (req, res) => {
@@ -32,16 +33,15 @@ const agendaController = {
 
     crearAgenda: async (req, res) => {
         try {
-            const [medicos] = await db.promise().query(`
-                SELECT m.*, p.nombre, p.apellido 
-                FROM medicos m 
-                JOIN persona p ON m.personaid = p.personaid
-                WHERE m.estado = 1
+            const medicos = await getMedicosWithCache();
+            const [sucursales] = await db.promise().query(`
+                SELECT sucursalid, nombre_sucrsal 
+                FROM sucursal 
+                WHERE estado = 1
             `);
-
-            const [sucursales] = await db.promise().query('SELECT sucursalid, nombre_sucrsal FROM sucursal WHERE estado = 1');
-            
-            const [tiposAtencion] = await db.promise().query('SELECT atencionid, tipo, descripcion FROM tipoatencion');
+            const [tiposAtencion] = await db.promise().query(`
+                SELECT * FROM tipoatencion
+            `);
 
             res.render('agenda/formAgenda', {
                 title: 'Crear Agenda',
@@ -51,7 +51,7 @@ const agendaController = {
                 user: req.session.user
             });
         } catch (error) {
-            console.error(error);
+            console.error('Error:', error);
             res.status(500).send('Error al cargar el formulario');
         }
     },
@@ -154,6 +154,29 @@ const agendaController = {
             });
         }
     }
+};
+
+const getMedicosWithCache = async () => {
+    return await cacheWrapper.getOrSet(
+        'medicos_activos',
+        async () => {
+            const [medicos] = await db.promise().query(`
+                SELECT 
+                    m.medicoid,
+                    p.nombre,
+                    p.apellido,
+                    p.dni,
+                    e.nombre_esp as especialidad
+                FROM medicos m
+                JOIN persona p ON m.personaid = p.personaid
+                JOIN especialidad e ON m.especialidadId = e.especialidadId
+                WHERE m.estado = 1
+                ORDER BY p.apellido, p.nombre
+            `);
+            return medicos;
+        },
+        300 // TTL de 5 minutos
+    );
 };
 
 module.exports = agendaController; 
