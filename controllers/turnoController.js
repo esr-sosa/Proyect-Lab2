@@ -925,7 +925,11 @@ const turnoController = {
             
             // 1. Verificar si hay turnos regulares para ese día
             const [turnosRegulares] = await db.promise().query(`
-                SELECT c.finalturno, c.inicioturno, c.estado
+                SELECT 
+                    c.finalturno, 
+                    c.inicioturno, 
+                    c.estado,
+                    a.duracion
                 FROM calendar c
                 JOIN agenda a ON c.agendaid = a.agendaid
                 WHERE a.medico_id = ?
@@ -981,10 +985,35 @@ const turnoController = {
                 });
             }
 
+            // Obtener el último turno (regular o sobreturno) del día
+            const [ultimoTurno] = await db.promise().query(`
+                SELECT 
+                    CASE 
+                        WHEN t.esSobreturno = 1 THEN c.finalturno
+                        ELSE c.finalturno
+                    END as finalturno
+                FROM calendar c
+                JOIN agenda a ON c.agendaid = a.agendaid
+                LEFT JOIN turno t ON c.calendarid = t.calendar_id
+                WHERE a.medico_id = ?
+                AND DATE(c.fechaturno) = ?
+                AND (
+                    (c.es_sobreturno = 0 AND t.turniid IS NULL) 
+                    OR 
+                    (c.es_sobreturno = 1 AND t.estadoturno_id = 4)
+                )
+                ORDER BY c.finalturno DESC
+                LIMIT 1
+            `, [medicoId, fecha]);
+
+            // Calcular el próximo horario disponible
+            const horarioSobreturno = moment(ultimoTurno[0].finalturno, 'HH:mm:ss')
+                .add(15, 'minutes')
+                .format('HH:mm');
+
             return res.json({
                 success: true,
-                horarioSobreturno: moment(turnosRegulares[0].finalturno, 'HH:mm:ss')
-                    .format('HH:mm'),
+                horarioSobreturno: horarioSobreturno,
                 message: 'Disponible para sobreturno'
             });
 
